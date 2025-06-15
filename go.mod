@@ -1,4 +1,4 @@
-module github.com/k-kazuya0926/mymodernapplicationsample
+module github.com/k-kazuya0926/my-modern-application-sample
 
 go 1.24
 
