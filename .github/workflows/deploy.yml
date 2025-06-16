@@ -21,4 +21,7 @@ jobs:
         with:
           ecr-repository-uri: ${{ vars.ECR_REPOSITORY_URI }}
           dockerfile-path: .
-      # TODO: デプロイ
+      - uses: ./.github/actions/lambda-deploy/ # Lambda関数へのデプロイ
+        with:
+          function-name: ${{ vars.LAMBDA_FUNCTION_NAME }}
+          container-image: ${{ steps.build.outputs.container-image }}

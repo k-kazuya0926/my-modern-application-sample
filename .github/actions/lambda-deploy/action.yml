@@ -1,0 +1,27 @@
+name: Lambda Deploy
+description: Lambda関数にコンテナイメージをデプロイします。
+inputs:
+  function-name:
+    required: true
+    description: Lambda関数名
+  container-image:
+    required: true
+    description: デプロイするコンテナイメージのURI
+runs:
+  using: composite
+  steps:
+    - run: |                                                 # Lambda関数の更新
+        echo "Lambda関数 ${FUNCTION_NAME} にイメージ ${CONTAINER_IMAGE} をデプロイしています..."
+        aws lambda update-function-code \
+          --function-name "${FUNCTION_NAME}" \
+          --image-uri "${CONTAINER_IMAGE}"
+
+        echo "デプロイが完了するまで待機しています..."
+        aws lambda wait function-updated \
+          --function-name "${FUNCTION_NAME}"
+
+        echo "Lambda関数のデプロイが完了しました"
+      env:
+        FUNCTION_NAME: ${{ inputs.function-name }}
+        CONTAINER_IMAGE: ${{ inputs.container-image }}
+      shell: bash
