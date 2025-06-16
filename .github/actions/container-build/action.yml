@@ -24,5 +24,6 @@ runs:
       with:
         push: true
         context: ${{ inputs.dockerfile-path }}
+        platforms: linux/amd64
         tags: ${{ steps.meta.outputs.tags }}
         labels: ${{ steps.meta.outputs.labels }}

@@ -9,13 +9,13 @@ RUN go mod download && go mod verify
 COPY . .
 
 # セキュリティ: CGOを無効化し、静的リンクでビルド
-RUN CGO_ENABLED=0 GOOS=linux GOARCH=arm64 go build \
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build \
     -ldflags='-w -s -extldflags "-static"' \
     -a -installsuffix cgo \
     -o bootstrap main.go
 
 # 実行用ステージ（Lambda公式イメージ）
-FROM public.ecr.aws/lambda/provided:al2023-arm64
+FROM public.ecr.aws/lambda/provided:al2023
 
 # ビルドしたバイナリをコピー
 COPY --from=build /app/bootstrap ${LAMBDA_RUNTIME_DIR}
