@@ -1,8 +1,7 @@
 name: Deploy
 on:
   push:
-    branches:
-      - main
+    branches: [main]
   workflow_dispatch:
 env:
   ROLE_ARN: arn:aws:iam::${{ secrets.AWS_ID }}:role/${{ secrets.ROLE_NAME }}
@@ -25,7 +24,7 @@ jobs:
         id: build
         with:
           ecr-repository-uri: ${{ env.ECR_REPOSITORY_URI }}
-          dockerfile-path: .
+          dockerfile-path: lambda/hello-world/Dockerfile
       - uses: ./.github/actions/lambda-deploy/ # Lambda関数へのデプロイ
         with:
           function-name: ${{ vars.LAMBDA_FUNCTION_NAME }}
