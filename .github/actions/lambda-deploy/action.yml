@@ -10,7 +10,7 @@ inputs:
 runs:
   using: composite
   steps:
-    - run: |                                                 # Lambda関数の更新
+    - run: |
         echo "Lambda関数 ${FUNCTION_NAME} にイメージ ${CONTAINER_IMAGE} をデプロイしています..."
         aws lambda update-function-code \
           --function-name "${FUNCTION_NAME}" \
