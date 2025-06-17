@@ -2,6 +2,7 @@ name: Deploy
 on:
   push:
     branches: [main]
+    paths: [lambda/**]
   workflow_dispatch:
 env:
   ROLE_ARN: arn:aws:iam::${{ secrets.AWS_ID }}:role/${{ secrets.ROLE_NAME }}
