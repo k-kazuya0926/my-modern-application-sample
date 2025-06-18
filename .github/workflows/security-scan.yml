@@ -40,22 +40,22 @@ jobs:
           trivy-config: "trivy.yaml"
         continue-on-error: true
 
-      - name: Check if SARIF file exists
-        id: check-secret-sarif
-        run: |
-          if [ -f "trivy-secret-results.sarif" ]; then
-            echo "sarif-exists=true" >> "$GITHUB_OUTPUT"
-          else
-            echo "sarif-exists=false" >> "$GITHUB_OUTPUT"
-            echo "SARIF file not generated, creating empty file"
-            echo '{"version":"2.1.0","runs":[{"tool":{"driver":{"name":"Trivy","version":"unknown"}},"results":[]}]}' > trivy-secret-results.sarif
-          fi
+      # - name: Check if SARIF file exists
+      #   id: check-secret-sarif
+      #   run: |
+      #     if [ -f "trivy-secret-results.sarif" ]; then
+      #       echo "sarif-exists=true" >> "$GITHUB_OUTPUT"
+      #     else
+      #       echo "sarif-exists=false" >> "$GITHUB_OUTPUT"
+      #       echo "SARIF file not generated, creating empty file"
+      #       echo '{"version":"2.1.0","runs":[{"tool":{"driver":{"name":"Trivy","version":"unknown"}},"results":[]}]}' > trivy-secret-results.sarif
+      #     fi
 
-      - name: Upload Trivy secret scan results to GitHub Security tab
-        uses: github/codeql-action/upload-sarif@v3
-        if: always()
-        with:
-          sarif_file: "trivy-secret-results.sarif"
+      # - name: Upload Trivy secret scan results to GitHub Security tab
+      #   uses: github/codeql-action/upload-sarif@v3
+      #   if: always()
+      #   with:
+      #     sarif_file: "trivy-secret-results.sarif"
 
   # trivy-vulnerability-scan:
   #   name: Vulnerability Scan
