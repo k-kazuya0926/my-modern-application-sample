@@ -44,9 +44,9 @@ jobs:
         id: check-secret-sarif
         run: |
           if [ -f "trivy-secret-results.sarif" ]; then
-            echo "sarif-exists=true" >> $GITHUB_OUTPUT
+            echo "sarif-exists=true" >> "$GITHUB_OUTPUT"
           else
-            echo "sarif-exists=false" >> $GITHUB_OUTPUT
+            echo "sarif-exists=false" >> "$GITHUB_OUTPUT"
             echo "SARIF file not generated, creating empty file"
             echo '{"version":"2.1.0","runs":[{"tool":{"driver":{"name":"Trivy","version":"unknown"}},"results":[]}]}' > trivy-secret-results.sarif
           fi
@@ -80,9 +80,9 @@ jobs:
   #       id: check-vuln-sarif
   #       run: |
   #         if [ -f "trivy-vuln-results.sarif" ]; then
-  #           echo "sarif-exists=true" >> $GITHUB_OUTPUT
+  #           echo "sarif-exists=true" >> "$GITHUB_OUTPUT"
   #         else
-  #           echo "sarif-exists=false" >> $GITHUB_OUTPUT
+  #           echo "sarif-exists=false" >> "$GITHUB_OUTPUT"
   #           echo "SARIF file not generated, creating empty file"
   #           echo '{"version":"2.1.0","runs":[{"tool":{"driver":{"name":"Trivy","version":"unknown"}},"results":[]}]}' > trivy-vuln-results.sarif
   #         fi
@@ -125,9 +125,9 @@ jobs:
   #       id: check-config-sarif
   #       run: |
   #         if [ -f "trivy-config-results.sarif" ]; then
-  #           echo "sarif-exists=true" >> $GITHUB_OUTPUT
+  #           echo "sarif-exists=true" >> "$GITHUB_OUTPUT"
   #         else
-  #           echo "sarif-exists=false" >> $GITHUB_OUTPUT
+  #           echo "sarif-exists=false" >> "$GITHUB_OUTPUT"
   #           echo "SARIF file not generated, creating empty file"
   #           echo '{"version":"2.1.0","runs":[{"tool":{"driver":{"name":"Trivy","version":"unknown"}},"results":[]}]}' > trivy-config-results.sarif
   #         fi
@@ -173,9 +173,9 @@ jobs:
   #       id: check-docker-sarif
   #       run: |
   #         if [ -f "trivy-docker-results.sarif" ]; then
-  #           echo "sarif-exists=true" >> $GITHUB_OUTPUT
+  #           echo "sarif-exists=true" >> "$GITHUB_OUTPUT"
   #         else
-  #           echo "sarif-exists=false" >> $GITHUB_OUTPUT
+  #           echo "sarif-exists=false" >> "$GITHUB_OUTPUT"
   #           echo "SARIF file not generated, creating empty file"
   #           echo '{"version":"2.1.0","runs":[{"tool":{"driver":{"name":"Trivy","version":"unknown"}},"results":[]}]}' > trivy-docker-results.sarif
   #         fi
