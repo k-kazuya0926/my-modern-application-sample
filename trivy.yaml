@@ -1,98 +1,33 @@
 # Trivy設定ファイル
 # https://aquasecurity.github.io/trivy/latest/docs/configuration/
 
-# スキャンの基本設定
-scan:
-  # スキャンするファイルタイプ
-  file-patterns:
-    - "*.go"
-    - "*.mod"
-    - "*.sum"
-    - "Dockerfile"
-    - "*.dockerfile"
-    - "*.yaml"
-    - "*.yml"
-    - "*.json"
-
 # 脆弱性スキャンの設定
 vulnerability:
-  # 脆弱性の重要度レベル（UNKNOWN, LOW, MEDIUM, HIGH, CRITICAL）
-  # 本番環境では CRITICAL, HIGH のみ、開発環境では MEDIUM も含める
+  # 脆弱性の重要度レベル
   severity:
     - CRITICAL
     - HIGH
-    - MEDIUM  # 開発段階では中程度の脆弱性も把握する
-
-  # 脆弱性データベースの設定
-  type:
-    - os
-    - library
-
-# シークレットスキャンの設定
-secret:
-  # シークレットスキャンのルール設定
-  config: |
-    rules:
-      - id: aws-access-key-id
-        description: AWS Access Key ID
-        regex: '(?i)(A3T[A-Z0-9]|AKIA|AGPA|AIDA|AROA|AIPA|ANPA|ANVA|ASIA)[A-Z0-9]{16}'
-        keywords:
-          - aws_access_key_id
-          - aws-access-key-id
-      - id: aws-secret-access-key
-        description: AWS Secret Access Key
-        regex: '(?i)[a-z0-9+/]{40}'
-        keywords:
-          - aws_secret_access_key
-          - aws-secret-access-key
-      - id: github-token
-        description: GitHub Token
-        regex: 'ghp_[A-Za-z0-9_]{36}|gho_[A-Za-z0-9_]{36}|ghu_[A-Za-z0-9_]{36}|ghs_[A-Za-z0-9_]{36}|ghr_[A-Za-z0-9_]{36}'
-        keywords:
-          - github_token
-          - github-token
+    - MEDIUM
 
 # 設定ミススキャンの設定
 misconfig:
-  # チェックするポリシー
-  policy:
-    - builtin
-
   # 重要度フィルター
   severity:
     - CRITICAL
     - HIGH
-    - MEDIUM  # 設定ミスは早期発見が重要なため中程度も含める
+    - MEDIUM
 
 # ライセンススキャンの設定
 license:
-  # 禁止ライセンス（プロジェクトのポリシーに応じて調整）
+  # 禁止ライセンス
   forbidden:
     - GPL-2.0
     - GPL-3.0
     - AGPL-1.0
     - AGPL-3.0
 
-  # 制限付きライセンス
-  restricted:
-    - LGPL-2.1
-    - LGPL-3.0
-    - MPL-2.0
-
-# 出力設定
-format: table
-output: ""
-
-# キャッシュ設定
-cache:
-  # キャッシュディレクトリ
-  dir: .trivycache
-
-# タイムアウト設定（秒）
+# タイムアウト設定
 timeout: 5m
 
 # デバッグモード
 debug: false
-
-# 静寂モード（エラーのみ表示）
-quiet: false
