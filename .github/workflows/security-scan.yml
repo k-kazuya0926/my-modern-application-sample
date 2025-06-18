@@ -161,10 +161,12 @@ jobs:
       - name: Display license scan results
         if: always()
         run: |
-          echo "## License Scan Results" >> $GITHUB_STEP_SUMMARY
-          echo '```' >> $GITHUB_STEP_SUMMARY
-          cat trivy-license-results.txt >> $GITHUB_STEP_SUMMARY
-          echo '```' >> $GITHUB_STEP_SUMMARY
+          {
+            echo "## License Scan Results"
+            echo '```'
+            cat trivy-license-results.txt
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
 
   security-summary:
     name: Security Summary
@@ -180,12 +182,14 @@ jobs:
     steps:
       - name: Security scan summary
         run: |
-          echo "## 🔒 Security Scan Summary" >> $GITHUB_STEP_SUMMARY
-          echo "| Scan Type | Status |" >> $GITHUB_STEP_SUMMARY
-          echo "|-----------|--------|" >> $GITHUB_STEP_SUMMARY
-          echo "| Secret Scan | ${{ needs.trivy-secret-scan.result == 'success' && '✅ Passed' || '❌ Failed' }} |" >> $GITHUB_STEP_SUMMARY
-          echo "| Vulnerability Scan | ${{ needs.trivy-vulnerability-scan.result == 'success' && '✅ Passed' || '❌ Failed' }} |" >> $GITHUB_STEP_SUMMARY
-          echo "| Configuration Scan | ${{ needs.trivy-config-scan.result == 'success' && '✅ Passed' || '❌ Failed' }} |" >> $GITHUB_STEP_SUMMARY
-          echo "| License Scan | ${{ needs.trivy-license-scan.result == 'success' && '✅ Passed' || '❌ Failed' }} |" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "詳細な結果は各ジョブのログとGitHub Security タブを確認してください。" >> $GITHUB_STEP_SUMMARY
+          {
+            echo "## 🔒 Security Scan Summary"
+            echo "| Scan Type | Status |"
+            echo "|-----------|--------|"
+            echo "| Secret Scan | ${{ needs.trivy-secret-scan.result == 'success' && '✅ Passed' || '❌ Failed' }} |"
+            echo "| Vulnerability Scan | ${{ needs.trivy-vulnerability-scan.result == 'success' && '✅ Passed' || '❌ Failed' }} |"
+            echo "| Configuration Scan | ${{ needs.trivy-config-scan.result == 'success' && '✅ Passed' || '❌ Failed' }} |"
+            echo "| License Scan | ${{ needs.trivy-license-scan.result == 'success' && '✅ Passed' || '❌ Failed' }} |"
+            echo ""
+            echo "詳細な結果は各ジョブのログとGitHub Security タブを確認してください。"
+          } >> "$GITHUB_STEP_SUMMARY"
