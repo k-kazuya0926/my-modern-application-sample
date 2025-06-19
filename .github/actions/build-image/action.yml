@@ -1,4 +1,4 @@
-name: Container Build
+name: Build image
 description: コンテナイメージをビルドし、ECRへプッシュします。
 inputs:
   ecr-repository-uri:
@@ -9,7 +9,7 @@ inputs:
     description: Dockerfileのパス
   function-name:
     required: true
-    description: Lambda関数名（build-argとして渡される）
+    description: Lambda関数名
 outputs:
   container-image:
     value: ${{ steps.meta.outputs.tags }}

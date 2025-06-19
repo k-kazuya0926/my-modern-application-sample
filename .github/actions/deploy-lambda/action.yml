@@ -1,4 +1,4 @@
-name: Lambda Deploy
+name: Deploy Lambda
 description: Lambda関数にコンテナイメージをデプロイします。
 inputs:
   function-name:
