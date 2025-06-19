@@ -1,4 +1,4 @@
-name: Build and deploy Lambda
+name: build-and-deploy-lambda-hello-world
 on:
   push:
     branches: [main]
