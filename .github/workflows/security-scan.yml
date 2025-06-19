@@ -9,12 +9,17 @@ on:
     # 毎日午前6時（JST）に実行
     - cron: "0 21 * * *"
   workflow_dispatch:
-
+defaults: # パイプエラーを拾えるようにデフォルトシェルを設定
+  run:
+    shell: bash
+concurrency: # コミット追加時に古いワークフローの実行を自動キャンセル
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 jobs:
   security-scan:
     name: Security Scan
     runs-on: ubuntu-latest
-
+    timeout-minutes: 10
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
