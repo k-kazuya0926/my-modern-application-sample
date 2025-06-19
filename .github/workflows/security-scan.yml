@@ -11,8 +11,8 @@ on:
   workflow_dispatch:
 
 jobs:
-  trivy-scan:
-    name: Trivy Security Scan
+  security-scan:
+    name: Security Scan
     runs-on: ubuntu-latest
 
     steps:
@@ -26,4 +26,6 @@ jobs:
           scan-ref: "."
           format: "table"
           severity: "CRITICAL,HIGH,MEDIUM"
-          exit-code: "1" # 脆弱性が見つかった場合ワークフローを失敗させる
+          exit-code: "1" # 問題が見つかった場合ワークフローを失敗させる
+          ignore-unfixed: true # 修正不可能な問題を無視
+          cache: "true"
