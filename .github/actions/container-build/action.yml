@@ -7,6 +7,9 @@ inputs:
   dockerfile-path:
     required: true
     description: Dockerfileのパス
+  function-name:
+    required: true
+    description: Lambda関数名（build-argとして渡される）
 outputs:
   container-image:
     value: ${{ steps.meta.outputs.tags }}
@@ -27,3 +30,5 @@ runs:
         platforms: linux/amd64
         tags: ${{ steps.meta.outputs.tags }}
         labels: ${{ steps.meta.outputs.labels }}
+        build-args: |
+          FUNCTION_NAME=${{ inputs.function-name }}

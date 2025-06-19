@@ -32,7 +32,8 @@ jobs:
         id: build
         with:
           ecr-repository-uri: ${{ env.ECR_REPOSITORY_URI }}
-          dockerfile-path: lambda/hello-world
+          dockerfile-path: lambda
+          function-name: hello-world
       - uses: ./.github/actions/lambda-deploy/
         with:
           function-name: ${{ vars.LAMBDA_FUNCTION_NAME }}
