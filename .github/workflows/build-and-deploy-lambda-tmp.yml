@@ -15,7 +15,7 @@ concurrency: # コミット追加時に古いワークフローの実行を自�
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 jobs:
-  deploy:
+  build-and-deploy:
     runs-on: ubuntu-latest
     timeout-minutes: 5
     permissions:
