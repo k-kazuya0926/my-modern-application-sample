@@ -33,6 +33,3 @@ go.work.sum
 
 # Trivy cache
 .trivycache/
-
-# others
-tmp*
