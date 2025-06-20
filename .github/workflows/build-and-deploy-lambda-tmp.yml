@@ -7,7 +7,7 @@ on:
 env:
   ROLE_ARN: arn:aws:iam::${{ secrets.AWS_ID }}:role/${{ secrets.ROLE_NAME }}
   SESSION_NAME: gh-oidc-${{ github.run_id }}-${{ github.run_attempt }}
-  ECR_REPOSITORY_URI: ${{ secrets.AWS_ID }}.dkr.ecr.ap-northeast-1.amazonaws.com/my-modern-application-sample/tmp
+  ECR_REPOSITORY_URI: ${{ secrets.AWS_ID }}.dkr.ecr.ap-northeast-1.amazonaws.com/my-modern-application-sample-tmp
 defaults: # パイプエラーを拾えるようにデフォルトシェルを設定
   run:
     shell: bash
@@ -36,5 +36,5 @@ jobs:
           function-name: tmp
       - uses: ./.github/actions/deploy-lambda/
         with:
-          function-name: tmp
+          function-name: my-modern-application-sample-tmp
           container-image: ${{ steps.build.outputs.container-image }}
