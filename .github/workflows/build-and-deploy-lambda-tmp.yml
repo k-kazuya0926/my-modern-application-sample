@@ -2,7 +2,9 @@ name: build-and-deploy-lambda-tmp
 on:
   push:
     branches: [main]
-    paths: [lambda/tmp/**]
+    paths:
+      - lambda/tmp/**
+      - .github/workflows/build-and-deploy-lambda-tmp.yml
   workflow_dispatch:
 env:
   ROLE_ARN: arn:aws:iam::${{ secrets.AWS_ID }}:role/${{ secrets.ROLE_NAME }}

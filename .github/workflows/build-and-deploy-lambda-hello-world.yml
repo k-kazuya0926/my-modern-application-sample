@@ -2,7 +2,9 @@ name: build-and-deploy-lambda-hello-world
 on:
   push:
     branches: [main]
-    paths: [lambda/hello-world/**]
+    paths:
+      - lambda/hello-world/**
+      - .github/workflows/build-and-deploy-lambda-hello-world.yml
   workflow_dispatch:
 env:
   ROLE_ARN: arn:aws:iam::${{ secrets.AWS_ID }}:role/${{ secrets.ROLE_NAME }}
@@ -36,5 +38,5 @@ jobs:
           function-name: hello-world
       - uses: ./.github/actions/deploy-lambda/
         with:
-          function-name: hello-world
+          function-name: my-modern-application-sample-hello-world
           container-image: ${{ steps.build.outputs.container-image }}
