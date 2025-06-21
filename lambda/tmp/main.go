@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"log"
 
 	"github.com/aws/aws-lambda-go/events"
@@ -30,10 +31,10 @@ func handler(ctx context.Context, event events.APIGatewayProxyRequest) (events.A
 		Headers: map[string]string{
 			"Content-Type": "application/json",
 		},
-		Body: `{"message": "Hello tmp!", "status": "success"}`,
+		Body: `{"message": "tmp", "status": "success"}`,
 	}
 
-	return response, nil
+	return response, errors.New("test")
 }
 
 func main() {
