@@ -9,6 +9,7 @@ terraform {
   }
 
   backend "s3" {
-    # terraform init -backend-config=backend.conf により設定
+    # 他の項目は terraform init -backend-config=backend.hcl により設定
+    key = "terraform.tfstate"
   }
 }
