@@ -1,14 +1,14 @@
 data "aws_caller_identity" "current" {}
 data "aws_region" "current" {}
 
-module "my-modern-application-sample-hello-world-role" {
+module "hello_world_role" {
   source     = "./iam_role"
-  name       = "my-modern-application-sample-hello-world-role"
-  policy     = data.aws_iam_policy_document.my-modern-application-sample-hello-world-role.json
+  name       = "my-modern-application-sample-hello-world"
+  policy     = data.aws_iam_policy_document.hello_world.json
   identifier = "lambda.amazonaws.com"
 }
 
-data "aws_iam_policy_document" "my-modern-application-sample-hello-world-role" {
+data "aws_iam_policy_document" "hello_world" {
   statement {
     effect    = "Allow"
     actions   = ["logs:CreateLogGroup"]
@@ -25,14 +25,15 @@ data "aws_iam_policy_document" "my-modern-application-sample-hello-world-role" {
   }
 }
 
-module "my-modern-application-sample-tmp-role" {
+
+module "tmp_role" {
   source     = "./iam_role"
-  name       = "my-modern-application-sample-tmp-role"
-  policy     = data.aws_iam_policy_document.my-modern-application-sample-tmp-role.json
+  name       = "my-modern-application-sample-tmp"
+  policy     = data.aws_iam_policy_document.tmp.json
   identifier = "lambda.amazonaws.com"
 }
 
-data "aws_iam_policy_document" "my-modern-application-sample-tmp-role" {
+data "aws_iam_policy_document" "tmp" {
   statement {
     effect    = "Allow"
     actions   = ["logs:CreateLogGroup"]
@@ -49,9 +50,10 @@ data "aws_iam_policy_document" "my-modern-application-sample-tmp-role" {
   }
 }
 
+
 # TODO: OIDC
 
-# github_actions_role
+
 resource "aws_iam_role" "github_actions" {
   name               = "my-modern-application-sample-github-actions-role"
   assume_role_policy = data.aws_iam_policy_document.github_actions_assume_role.json
