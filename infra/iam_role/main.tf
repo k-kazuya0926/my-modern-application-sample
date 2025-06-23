@@ -1,5 +1,5 @@
 resource "aws_iam_role" "default" {
-  name               = "${var.name}-role"
+  name               = "${var.base_name}-role"
   assume_role_policy = data.aws_iam_policy_document.assume_role.json
 }
 
@@ -15,7 +15,7 @@ data "aws_iam_policy_document" "assume_role" {
 }
 
 resource "aws_iam_policy" "default" {
-  name   = "${var.name}-policy"
+  name   = "${var.base_name}-policy"
   policy = var.policy
 }
 
