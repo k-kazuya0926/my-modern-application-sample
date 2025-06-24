@@ -4,6 +4,12 @@ resource "aws_lambda_function" "this" {
   package_type  = "Image"
   image_uri     = var.image_uri
 
+  lifecycle {
+    ignore_changes = [
+      image_uri,
+    ]
+  }
+
   # メモリとタイムアウトの設定
   memory_size = var.memory_size
   timeout     = var.timeout
