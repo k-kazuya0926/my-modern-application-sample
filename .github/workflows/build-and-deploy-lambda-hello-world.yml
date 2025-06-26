@@ -9,7 +9,7 @@ on:
 env:
   ROLE_ARN: arn:aws:iam::${{ secrets.AWS_ID }}:role/${{ secrets.ROLE_NAME }}
   SESSION_NAME: gh-oidc-${{ github.run_id }}-${{ github.run_attempt }}
-  ECR_REPOSITORY_URI: ${{ secrets.AWS_ID }}.dkr.ecr.ap-northeast-1.amazonaws.com/my-modern-application-sample-hello-world
+  ECR_REPOSITORY_URI: ${{ secrets.AWS_ID }}.dkr.ecr.ap-northeast-1.amazonaws.com/my-modern-application-sample-prod-hello-world
 defaults: # パイプエラーを拾えるようにデフォルトシェルを設定
   run:
     shell: bash
@@ -35,8 +35,8 @@ jobs:
         with:
           ecr-repository-uri: ${{ env.ECR_REPOSITORY_URI }}
           dockerfile-path: lambda
-          function-name: hello-world
-      - uses: ./.github/actions/deploy-lambda/
-        with:
-          function-name: my-modern-application-sample-hello-world
-          container-image: ${{ steps.build.outputs.container-image }}
+          function-name: prod-hello-world
+      # - uses: ./.github/actions/deploy-lambda/
+      #   with:
+      #     function-name: my-modern-application-sample-prod-hello-world
+      #     container-image: ${{ steps.build.outputs.container-image }}
