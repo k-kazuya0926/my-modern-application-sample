@@ -36,7 +36,7 @@ jobs:
           ecr-repository-uri: ${{ env.ECR_REPOSITORY_URI }}
           dockerfile-path: lambda
           function-name: hello-world
-      # - uses: ./.github/actions/deploy-lambda/
-      #   with:
-      #     function-name: my-modern-application-sample-prod-hello-world
-      #     container-image: ${{ steps.build.outputs.container-image }}
+      - uses: ./.github/actions/deploy-lambda/
+        with:
+          function-name: my-modern-application-sample-prod-hello-world
+          container-image: ${{ steps.build.outputs.container-image }}
