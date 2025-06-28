@@ -1,11 +1,10 @@
-name: build-and-deploy-lambda-tmp
+name: build-lambda-tmp
 on:
   push:
     branches: [main]
     paths:
       - lambda/tmp/**
-      - .github/workflows/build-and-deploy-lambda-tmp.yml
-  workflow_dispatch:
+      - .github/workflows/build-lambda-tmp.yml
 env:
   ROLE_ARN: arn:aws:iam::${{ secrets.AWS_ID }}:role/${{ secrets.ROLE_NAME }}
   SESSION_NAME: gh-oidc-${{ github.run_id }}-${{ github.run_attempt }}
@@ -17,7 +16,7 @@ concurrency: # コミット追加時に古いワークフローの実行を自�
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 jobs:
-  build-and-deploy:
+  build:
     runs-on: ubuntu-latest
     timeout-minutes: 5
     permissions:
@@ -36,7 +35,3 @@ jobs:
           ecr-repository-uri: ${{ env.ECR_REPOSITORY_URI }}
           dockerfile-path: lambda
           function-name: tmp
-      - uses: ./.github/actions/deploy-lambda/
-        with:
-          function-name: my-modern-application-sample-prod-tmp
-          container-image: ${{ steps.build.outputs.container-image }}
