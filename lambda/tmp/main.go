@@ -33,7 +33,7 @@ func handler(ctx context.Context, event events.APIGatewayProxyRequest) (events.A
 		Headers: map[string]string{
 			"Content-Type": "application/json",
 		},
-		Body: `{"message": "OK!"}`,
+		Body: `{"message": "OK"}`,
 	}
 
 	return response, nil
