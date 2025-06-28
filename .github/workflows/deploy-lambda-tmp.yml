@@ -1,0 +1,40 @@
+name: deploy-lambda-tmp
+on:
+  workflow_dispatch:
+    inputs:
+      environment-name:
+        type: environment
+        required: true
+        description: "Environment名"
+      container-image:
+        type: string
+        required: true
+        description: "コンテナイメージURI"
+env:
+  ROLE_ARN: arn:aws:iam::${{ secrets.AWS_ID }}:role/${{ secrets.ROLE_NAME }}
+  SESSION_NAME: gh-oidc-${{ github.run_id }}-${{ github.run_attempt }}
+defaults: # パイプエラーを拾えるようにデフォルトシェルを設定
+  run:
+    shell: bash
+concurrency: # コミット追加時に古いワークフローの実行を自動キャンセル
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.environment-name }}
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: aws-actions/configure-aws-credentials@v4 # 一時クレデンシャルの取得
+        with:
+          role-to-assume: ${{ env.ROLE_ARN }}
+          role-session-name: ${{ env.SESSION_NAME }}
+          aws-region: ap-northeast-1
+      - uses: ./.github/actions/deploy-lambda/
+        with:
+          function-name: my-modern-application-sample-prod-tmp
+          container-image: ${{ inputs.container-image }}
