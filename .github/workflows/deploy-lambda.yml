@@ -1,4 +1,4 @@
-name: deploy-lambda-hello-world
+name: deploy-lambda
 on:
   workflow_dispatch:
     inputs:
@@ -6,6 +6,13 @@ on:
         type: environment
         required: true
         description: "環境名"
+      function-name:
+        type: choice
+        options:
+          - hello-world
+          - tmp
+        required: true
+        description: "Lambda関数名"
       image-tag:
         type: string
         required: true
@@ -13,7 +20,7 @@ on:
 env:
   ROLE_ARN: arn:aws:iam::${{ secrets.AWS_ID }}:role/${{ github.event.repository.name }}-${{ inputs.env }}-github-actions
   SESSION_NAME: gh-oidc-${{ github.run_id }}-${{ github.run_attempt }}
-  ECR_REPOSITORY_URI: ${{ secrets.AWS_ID }}.dkr.ecr.ap-northeast-1.amazonaws.com/${{ github.event.repository.name }}-${{ inputs.env }}-hello-world
+  ECR_REPOSITORY_URI: ${{ secrets.AWS_ID }}.dkr.ecr.ap-northeast-1.amazonaws.com/${{ github.event.repository.name }}-${{ inputs.env }}-${{ inputs.function-name }}
 defaults: # パイプエラーを拾えるようにデフォルトシェルを設定
   run:
     shell: bash
@@ -37,5 +44,5 @@ jobs:
           aws-region: ap-northeast-1
       - uses: ./.github/actions/deploy-lambda/
         with:
-          function-name: ${{ github.event.repository.name }}-${{ inputs.env }}-hello-world
+          function-name: ${{ github.event.repository.name }}-${{ inputs.env }}-${{ inputs.function-name }}
           image-uri: ${{ env.ECR_REPOSITORY_URI }}:${{ inputs.image-tag }}
