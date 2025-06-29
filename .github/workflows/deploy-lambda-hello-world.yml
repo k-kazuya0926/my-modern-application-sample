@@ -1,15 +1,19 @@
-name: build-and-deploy-lambda-hello-world
+name: deploy-lambda-hello-world
 on:
-  push:
-    branches: [main]
-    paths:
-      - lambda/hello-world/**
-      - .github/workflows/build-and-deploy-lambda-hello-world.yml
   workflow_dispatch:
+    inputs:
+      env:
+        type: environment
+        required: true
+        description: "環境名"
+      image-tag:
+        type: string
+        required: true
+        description: "コンテナイメージのタグ"
 env:
-  ROLE_ARN: arn:aws:iam::${{ secrets.AWS_ID }}:role/${{ secrets.ROLE_NAME }}
+  ROLE_ARN: arn:aws:iam::${{ secrets.AWS_ID }}:role/${{ github.event.repository.name }}-${{ inputs.env }}-github-actions
   SESSION_NAME: gh-oidc-${{ github.run_id }}-${{ github.run_attempt }}
-  ECR_REPOSITORY_URI: ${{ secrets.AWS_ID }}.dkr.ecr.ap-northeast-1.amazonaws.com/my-modern-application-sample-prod-hello-world
+  ECR_REPOSITORY_URI: ${{ secrets.AWS_ID }}.dkr.ecr.ap-northeast-1.amazonaws.com/${{ github.event.repository.name }}-${{ inputs.env }}-hello-world
 defaults: # パイプエラーを拾えるようにデフォルトシェルを設定
   run:
     shell: bash
@@ -17,8 +21,9 @@ concurrency: # コミット追加時に古いワークフローの実行を自�
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 jobs:
-  build-and-deploy:
+  deploy:
     runs-on: ubuntu-latest
+    environment: ${{ inputs.env }}
     timeout-minutes: 5
     permissions:
       contents: read
@@ -30,13 +35,7 @@ jobs:
           role-to-assume: ${{ env.ROLE_ARN }}
           role-session-name: ${{ env.SESSION_NAME }}
           aws-region: ap-northeast-1
-      - uses: ./.github/actions/build-image/
-        id: build
-        with:
-          ecr-repository-uri: ${{ env.ECR_REPOSITORY_URI }}
-          dockerfile-path: lambda
-          function-name: hello-world
       - uses: ./.github/actions/deploy-lambda/
         with:
-          function-name: my-modern-application-sample-prod-hello-world
-          container-image: ${{ steps.build.outputs.container-image }}
+          function-name: ${{ github.event.repository.name }}-${{ inputs.env }}-hello-world
+          image-uri: ${{ env.ECR_REPOSITORY_URI }}:${{ inputs.image-tag }}
