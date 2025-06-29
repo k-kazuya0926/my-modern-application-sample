@@ -11,6 +11,7 @@ on:
         options:
           - hello-world
           - tmp
+          - read-and-write-s3
         required: true
         description: "Lambda関数名"
       image-tag:
