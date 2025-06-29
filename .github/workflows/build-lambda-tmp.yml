@@ -15,7 +15,7 @@ jobs:
   build:
     strategy:
       matrix:
-        env: [prod]
+        env: [prod] # 用意する環境に応じて変更
     runs-on: ubuntu-latest
     environment: ${{ matrix.env }}
     timeout-minutes: 5
