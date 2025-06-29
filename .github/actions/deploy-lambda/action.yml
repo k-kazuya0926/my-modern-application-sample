@@ -4,17 +4,17 @@ inputs:
   function-name:
     required: true
     description: Lambda関数名
-  container-image:
+  image-url:
     required: true
     description: デプロイするコンテナイメージのURI
 runs:
   using: composite
   steps:
     - run: |
-        echo "Lambda関数 ${FUNCTION_NAME} にイメージ ${CONTAINER_IMAGE} をデプロイしています..."
+        echo "Lambda関数 ${FUNCTION_NAME} にイメージ ${IMAGE_URI} をデプロイしています..."
         aws lambda update-function-code \
           --function-name "${FUNCTION_NAME}" \
-          --image-uri "${CONTAINER_IMAGE}"
+          --image-uri "${IMAGE_URI}"
 
         echo "デプロイが完了するまで待機しています..."
         aws lambda wait function-updated \
@@ -23,5 +23,5 @@ runs:
         echo "Lambda関数のデプロイが完了しました"
       env:
         FUNCTION_NAME: ${{ inputs.function-name }}
-        CONTAINER_IMAGE: ${{ inputs.container-image }}
+        IMAGE_URI: ${{ inputs.image-url }}
       shell: bash

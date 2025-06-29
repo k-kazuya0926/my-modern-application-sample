@@ -38,4 +38,4 @@ jobs:
       - uses: ./.github/actions/deploy-lambda/
         with:
           function-name: ${{ github.event.repository.name }}-${{ inputs.env }}-tmp
-          container-image: ${{ env.ECR_REPOSITORY_URI }}:${{ inputs.image-tag }}
+          image-uri: ${{ env.ECR_REPOSITORY_URI }}:${{ inputs.image-tag }}
