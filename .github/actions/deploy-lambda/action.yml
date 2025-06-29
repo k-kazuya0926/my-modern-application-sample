@@ -4,7 +4,7 @@ inputs:
   function-name:
     required: true
     description: Lambda関数名
-  image-url:
+  image-uri:
     required: true
     description: デプロイするコンテナイメージのURI
 runs:
@@ -23,5 +23,5 @@ runs:
         echo "Lambda関数のデプロイが完了しました"
       env:
         FUNCTION_NAME: ${{ inputs.function-name }}
-        IMAGE_URI: ${{ inputs.image-url }}
+        IMAGE_URI: ${{ inputs.image-uri }}
       shell: bash
