@@ -2,18 +2,18 @@ name: deploy-lambda-tmp
 on:
   workflow_dispatch:
     inputs:
-      environment-name:
+      env:
         type: environment
         required: true
-        description: "Environment名"
+        description: "環境名"
       image-tag:
         type: string
         required: true
         description: "コンテナイメージのタグ"
 env:
-  ROLE_ARN: arn:aws:iam::${{ secrets.AWS_ID }}:role/${{ secrets.ROLE_NAME }}
+  ROLE_ARN: arn:aws:iam::${{ secrets.AWS_ID }}:role/${{ github.event.repository.name }}-${{ inputs.env }}-github-actions
   SESSION_NAME: gh-oidc-${{ github.run_id }}-${{ github.run_attempt }}
-  ECR_REPOSITORY_URI: ${{ secrets.AWS_ID }}.dkr.ecr.ap-northeast-1.amazonaws.com/my-modern-application-sample-${{ inputs.environment-name }}-tmp
+  ECR_REPOSITORY_URI: ${{ secrets.AWS_ID }}.dkr.ecr.ap-northeast-1.amazonaws.com/${{ github.event.repository.name }}-${{ inputs.env }}-tmp
 defaults: # パイプエラーを拾えるようにデフォルトシェルを設定
   run:
     shell: bash
@@ -23,7 +23,7 @@ concurrency: # コミット追加時に古いワークフローの実行を自�
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    environment: ${{ inputs.environment-name }}
+    environment: ${{ inputs.env }}
     timeout-minutes: 5
     permissions:
       contents: read
@@ -37,5 +37,5 @@ jobs:
           aws-region: ap-northeast-1
       - uses: ./.github/actions/deploy-lambda/
         with:
-          function-name: my-modern-application-sample-${{ inputs.environment-name }}-tmp
+          function-name: ${{ github.event.repository.name }}-${{ inputs.env }}-tmp
           container-image: ${{ env.ECR_REPOSITORY_URI }}:${{ inputs.image-tag }}
