@@ -5,10 +5,6 @@ on:
     paths:
       - lambda/tmp/**
       - .github/workflows/build-lambda-tmp.yml
-env:
-  ROLE_ARN: arn:aws:iam::${{ secrets.AWS_ID }}:role/${{ secrets.ROLE_NAME }}
-  SESSION_NAME: gh-oidc-${{ github.run_id }}-${{ github.run_attempt }}
-  ECR_REPOSITORY_URI: ${{ secrets.AWS_ID }}.dkr.ecr.ap-northeast-1.amazonaws.com/my-modern-application-sample-prod-tmp
 defaults: # パイプエラーを拾えるようにデフォルトシェルを設定
   run:
     shell: bash
@@ -17,11 +13,19 @@ concurrency: # コミット追加時に古いワークフローの実行を自�
   cancel-in-progress: true
 jobs:
   build:
+    strategy:
+      matrix:
+        env: [prod]
     runs-on: ubuntu-latest
+    environment: ${{ matrix.env }}
     timeout-minutes: 5
     permissions:
       contents: read
       id-token: write
+    env:
+      ROLE_ARN: arn:aws:iam::${{ secrets.AWS_ID }}:role/my-modern-application-sample-${{ matrix.env }}-github-actions
+      SESSION_NAME: gh-oidc-${{ github.run_id }}-${{ github.run_attempt }}
+      ECR_REPOSITORY_URI: ${{ secrets.AWS_ID }}.dkr.ecr.ap-northeast-1.amazonaws.com/my-modern-application-sample-${{ matrix.env }}-tmp
     steps:
       - uses: actions/checkout@v4
       - uses: aws-actions/configure-aws-credentials@v4 # 一時クレデンシャルの取得
