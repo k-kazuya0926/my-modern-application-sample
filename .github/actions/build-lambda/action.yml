@@ -11,9 +11,9 @@ inputs:
     required: true
     description: Lambda関数名
 outputs:
-  image-tag:
+  image-uri:
     value: ${{ steps.meta.outputs.tags }}
-    description: ビルドしたLambdaのコンテナイメージ
+    description: ビルドしたLambdaのコンテナイメージのURI
 runs:
   using: composite
   steps:

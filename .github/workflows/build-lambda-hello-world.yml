@@ -43,4 +43,4 @@ jobs:
       - uses: ./.github/actions/deploy-lambda/
         with:
           function-name: ${{ github.event.repository.name }}-${{ matrix.env }}-hello-world
-          image-uri: ${{ env.ECR_REPOSITORY_URI }}:${{ steps.build.outputs.image-tag }}
+          image-uri: ${{ steps.build.outputs.image-uri }}
