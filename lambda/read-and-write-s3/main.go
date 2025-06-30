@@ -1,29 +1,89 @@
 package main
 
 import (
+	"bytes"
 	"context"
 	"fmt"
-	"log"
+	"io"
+	"os"
+	"path/filepath"
 
+	"github.com/alexmullins/zip"
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
+	"github.com/aws/aws-sdk-go-v2/config"
+	"github.com/aws/aws-sdk-go-v2/service/s3"
 )
 
 func handler(ctx context.Context, s3Event events.S3Event) error {
+	// AWS設定を読み込み
+	cfg, err := config.LoadDefaultConfig(ctx)
+	if err != nil {
+		return fmt.Errorf("AWS設定読み込みエラー: %v", err)
+	}
+
+	s3Client := s3.NewFromConfig(cfg)
+
+	// 出力バケット名を環境変数から取得
+	outputBucket := os.Getenv("OUTPUT_BUCKET")
+	if outputBucket == "" {
+		return fmt.Errorf("OUTPUT_BUCKET環境変数が設定されていません")
+	}
+
 	for _, record := range s3Event.Records {
-		// S3イベントの詳細を取得
 		bucketName := record.S3.Bucket.Name
 		objectKey := record.S3.Object.Key
-		eventName := record.EventName
 
-		// ログ出力
-		log.Printf("S3イベント受信: %s", eventName)
-		log.Printf("バケット名: %s", bucketName)
-		log.Printf("ファイル名: %s", objectKey)
+		fmt.Printf("処理中: バケット=%s, ファイル=%s\n", bucketName, objectKey)
 
-		// 追加情報もログ出力
-		fmt.Printf("リージョン: %s\n", record.AWSRegion)
-		fmt.Printf("イベント時刻: %s\n", record.EventTime)
+		// S3からファイルをダウンロード
+		result, err := s3Client.GetObject(ctx, &s3.GetObjectInput{
+			Bucket: &bucketName,
+			Key:    &objectKey,
+		})
+		if err != nil {
+			return fmt.Errorf("ダウンロードエラー: %v", err)
+		}
+		defer result.Body.Close()
+
+		// ファイル内容を読み取り
+		fileContent, err := io.ReadAll(result.Body)
+		if err != nil {
+			return fmt.Errorf("ファイル読み取りエラー: %v", err)
+		}
+
+		// パスワード付きZIPファイルを作成
+		zipBuffer := new(bytes.Buffer)
+		zipWriter := zip.NewWriter(zipBuffer)
+
+		// パスワード付きファイルエントリを作成
+		fileWriter, err := zipWriter.Encrypt(filepath.Base(objectKey), "mypassword")
+		if err != nil {
+			return fmt.Errorf("ZIP暗号化エラー: %v", err)
+		}
+
+		_, err = fileWriter.Write(fileContent)
+		if err != nil {
+			return fmt.Errorf("ZIPファイル書き込みエラー: %v", err)
+		}
+
+		err = zipWriter.Close()
+		if err != nil {
+			return fmt.Errorf("ZIPファイルクローズエラー: %v", err)
+		}
+
+		// S3にZIPファイルをアップロード
+		zipKey := objectKey + ".zip"
+		_, err = s3Client.PutObject(ctx, &s3.PutObjectInput{
+			Bucket: &outputBucket,
+			Key:    &zipKey,
+			Body:   bytes.NewReader(zipBuffer.Bytes()),
+		})
+		if err != nil {
+			return fmt.Errorf("アップロードエラー: %v", err)
+		}
+
+		fmt.Printf("完了: %s を %s にアップロードしました\n", zipKey, outputBucket)
 	}
 
 	return nil
