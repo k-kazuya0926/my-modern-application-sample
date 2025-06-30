@@ -39,8 +39,8 @@ jobs:
           ecr-repository-uri: ${{ env.ECR_REPOSITORY_URI }}
           dockerfile-path: lambda
           function-name: hello-world
-      # デプロイまで行う場合
-      - uses: ./.github/actions/deploy-lambda/
-        with:
-          function-name: ${{ github.event.repository.name }}-${{ matrix.env }}-hello-world
-          image-uri: ${{ steps.build.outputs.image-uri }}
+      # デプロイまで行う場合は次のようにする
+      # - uses: ./.github/actions/deploy-lambda/
+      #   with:
+      #     function-name: ${{ github.event.repository.name }}-${{ matrix.env }}-hello-world
+      #     image-uri: ${{ steps.build.outputs.image-uri }}
