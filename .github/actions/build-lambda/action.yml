@@ -1,5 +1,5 @@
-name: build-image
-description: コンテナイメージをビルドし、ECRへプッシュします。
+name: build-lambda
+description: Lambdaのコンテナイメージをビルドし、ECRへプッシュします。
 inputs:
   ecr-repository-uri:
     required: true
@@ -11,9 +11,9 @@ inputs:
     required: true
     description: Lambda関数名
 outputs:
-  container-image:
+  image-tag:
     value: ${{ steps.meta.outputs.tags }}
-    description: ビルドしたコンテナイメージ
+    description: ビルドしたLambdaのコンテナイメージ
 runs:
   using: composite
   steps:

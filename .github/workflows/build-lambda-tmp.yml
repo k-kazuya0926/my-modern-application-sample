@@ -33,7 +33,7 @@ jobs:
           role-to-assume: ${{ env.ROLE_ARN }}
           role-session-name: ${{ env.SESSION_NAME }}
           aws-region: ${{ vars.AWS_REGION }}
-      - uses: ./.github/actions/build-image/
+      - uses: ./.github/actions/build-lambda/
         id: build
         with:
           ecr-repository-uri: ${{ env.ECR_REPOSITORY_URI }}

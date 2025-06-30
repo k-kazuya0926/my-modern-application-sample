@@ -33,7 +33,7 @@ jobs:
           role-to-assume: ${{ env.ROLE_ARN }}
           role-session-name: ${{ env.SESSION_NAME }}
           aws-region: ${{ vars.AWS_REGION }}
-      - uses: ./.github/actions/build-image/
+      - uses: ./.github/actions/build-lambda/
         id: build
         with:
           ecr-repository-uri: ${{ env.ECR_REPOSITORY_URI }}
@@ -43,4 +43,4 @@ jobs:
       - uses: ./.github/actions/deploy-lambda/
         with:
           function-name: ${{ github.event.repository.name }}-${{ matrix.env }}-hello-world
-          image-uri: ${{ steps.build.outputs.image-uri }}
+          image-uri: ${{ env.ECR_REPOSITORY_URI }}:${{ steps.build.outputs.image-tag }}
