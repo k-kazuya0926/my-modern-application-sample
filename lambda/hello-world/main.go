@@ -7,7 +7,7 @@ import (
 )
 
 func handler(ctx context.Context) (string, error) {
-	return "Hello world!", nil
+	return "Hello world", nil
 }
 
 func main() {
