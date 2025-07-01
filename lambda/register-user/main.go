@@ -7,7 +7,7 @@ import (
 )
 
 func handler(ctx context.Context) (string, error) {
-	return "Register user", nil
+	return "Register user!", nil
 }
 
 func main() {
