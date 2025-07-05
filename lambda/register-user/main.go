@@ -44,7 +44,7 @@ type RequestBody struct {
 // 連番を更新して返す関数
 func nextSeq(ctx context.Context, tableName string) (int64, error) {
 	input := &dynamodb.UpdateItemInput{
-		TableName: aws.String("sequences"),
+		TableName: aws.String("my-modern-application-sample-prod-sequences"),
 		Key: map[string]types.AttributeValue{
 			"table_name": &types.AttributeValueMemberS{
 				Value: tableName,
@@ -82,7 +82,7 @@ func handler(ctx context.Context, request events.APIGatewayV2HTTPRequest) (event
 	}()
 
 	// シーケンスデータを得る
-	nextSeq, err := nextSeq(ctx, "users")
+	nextSeq, err := nextSeq(ctx, "my-modern-application-sample-prod-users")
 	if err != nil {
 		log.Printf("Error getting next sequence: %v", err)
 		return events.APIGatewayV2HTTPResponse{
@@ -156,7 +156,7 @@ func handler(ctx context.Context, request events.APIGatewayV2HTTPRequest) (event
 
 	// DynamoDBにアイテムを保存
 	putInput := &dynamodb.PutItemInput{
-		TableName: aws.String("users"),
+		TableName: aws.String("my-modern-application-sample-prod-users"),
 		Item:      item,
 	}
 
