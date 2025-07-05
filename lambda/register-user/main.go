@@ -28,16 +28,16 @@ type SequenceItem struct {
 
 // ユーザーテーブルの構造体
 type UserItem struct {
-	ID         int64   `json:"id"`
-	Username   string  `json:"username"`
-	Email      string  `json:"email"`
-	AcceptedAt float64 `json:"accepted_at"`
-	Host       string  `json:"host"`
+	ID         int64   `json:"id" dynamodb:"id"`
+	UserName   string  `json:"user_name" dynamodb:"user_name"`
+	Email      string  `json:"email" dynamodb:"email"`
+	AcceptedAt float64 `json:"accepted_at" dynamodb:"accepted_at"`
+	Host       string  `json:"host" dynamodb:"host"`
 }
 
 // リクエストボディの構造体
 type RequestBody struct {
-	Username string `json:"username"`
+	UserName string `json:"user_name"`
 	Email    string `json:"email"`
 }
 
@@ -135,7 +135,7 @@ func handler(ctx context.Context, request events.APIGatewayV2HTTPRequest) (event
 	// userテーブルに登録する
 	userItem := UserItem{
 		ID:         nextSeq,
-		Username:   requestBody.Username,
+		UserName:   requestBody.UserName,
 		Email:      requestBody.Email,
 		AcceptedAt: now,
 		Host:       host,
