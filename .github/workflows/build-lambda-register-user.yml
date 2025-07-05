@@ -40,7 +40,7 @@ jobs:
           dockerfile-path: lambda
           function-name: register-user
       # デプロイまで行う場合は次のようにする
-      - uses: ./.github/actions/deploy-lambda/
-        with:
-          function-name: ${{ github.event.repository.name }}-${{ matrix.env }}-register-user
-          image-uri: ${{ steps.build.outputs.image-uri }}
+      # - uses: ./.github/actions/deploy-lambda/
+      #   with:
+      #     function-name: ${{ github.event.repository.name }}-${{ matrix.env }}-register-user
+      #     image-uri: ${{ steps.build.outputs.image-uri }}
