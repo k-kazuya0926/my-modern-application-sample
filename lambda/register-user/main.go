@@ -94,6 +94,9 @@ func handler(ctx context.Context, request events.APIGatewayV2HTTPRequest) (event
 		}, nil
 	}
 
+	// デバッグ用：取得したシーケンス値をログ出力
+	log.Printf("Next sequence value: %d", nextSeq)
+
 	// フォームに入力されたデータを得る
 	var body string
 	if request.IsBase64Encoded {
@@ -154,10 +157,34 @@ func handler(ctx context.Context, request events.APIGatewayV2HTTPRequest) (event
 		}, nil
 	}
 
+	// デバッグ用：アイテムの内容をログ出力
+	log.Printf("UserItem before marshal: %+v", userItem)
+	log.Printf("DynamoDB item after marshal: %+v", item)
+
+	// 手動でDynamoDBアイテムを作成（デバッグ用）
+	manualItem := map[string]types.AttributeValue{
+		"id": &types.AttributeValueMemberN{
+			Value: strconv.FormatInt(nextSeq, 10),
+		},
+		"user_name": &types.AttributeValueMemberS{
+			Value: requestBody.UserName,
+		},
+		"email": &types.AttributeValueMemberS{
+			Value: requestBody.Email,
+		},
+		"accepted_at": &types.AttributeValueMemberN{
+			Value: strconv.FormatFloat(now, 'f', -1, 64),
+		},
+		"host": &types.AttributeValueMemberS{
+			Value: host,
+		},
+	}
+	log.Printf("Manual DynamoDB item: %+v", manualItem)
+
 	// DynamoDBにアイテムを保存
 	putInput := &dynamodb.PutItemInput{
 		TableName: aws.String("my-modern-application-sample-prod-users"),
-		Item:      item,
+		Item:      manualItem, // 手動で作成したアイテムを使用
 	}
 
 	_, err = dynamodbClient.PutItem(ctx, putInput)
