@@ -16,13 +16,23 @@ import (
 	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
+	"github.com/aws/aws-sdk-go-v2/service/s3"
 )
 
 // DynamoDBクライアント
 var dynamodbClient *dynamodb.Client
 
+// S3クライアント
+var s3Client *s3.Client
+
 // 環境変数から環境名を取得
 var env string
+
+// 環境変数
+var (
+	contentsBucket string
+	fileName       string
+)
 
 // シーケンステーブルの構造体
 type SequenceItem struct {
@@ -69,7 +79,6 @@ func nextSeq(ctx context.Context, tableName string) (int64, error) {
 }
 
 func handler(ctx context.Context, request events.APIGatewayV2HTTPRequest) (events.APIGatewayV2HTTPResponse, error) {
-	// エラーハンドリング用のdefer
 	defer func() {
 		if r := recover(); r != nil {
 			log.Printf("Panic occurred: %v", r)
@@ -127,6 +136,26 @@ func handler(ctx context.Context, request events.APIGatewayV2HTTPRequest) (event
 	// 現在のUNIXタイムスタンプを得る
 	now := float64(time.Now().Unix())
 
+	// 署名付きURLを生成
+	presignClient := s3.NewPresignClient(s3Client)
+	presignRequest, err := presignClient.PresignPutObject(ctx, &s3.PutObjectInput{
+		Bucket:      aws.String(contentsBucket),
+		Key:         aws.String(fileName),
+		ContentType: aws.String("image/jpeg"),
+	}, func(opts *s3.PresignOptions) {
+		opts.Expires = time.Duration(8) * time.Hour
+	})
+	if err != nil {
+		log.Printf("Error generating presigned URL: %v", err)
+		return events.APIGatewayV2HTTPResponse{
+			StatusCode: 500,
+			Headers: map[string]string{
+				"Content-Type": "application/json",
+			},
+			Body: `{"error": "内部エラーが発生しました"}`,
+		}, nil
+	}
+
 	// DynamoDBアイテムを手動で作成
 	// 注意: attributevalue.MarshalMap()はdynamodbタグを正しく認識しないため、手動で作成
 	item := map[string]types.AttributeValue{
@@ -144,6 +173,9 @@ func handler(ctx context.Context, request events.APIGatewayV2HTTPRequest) (event
 		},
 		"host": &types.AttributeValueMemberS{
 			Value: host,
+		},
+		"url": &types.AttributeValueMemberS{
+			Value: presignRequest.URL,
 		},
 	}
 
@@ -182,12 +214,28 @@ func main() {
 		log.Fatalf("Environment variable ENV is required")
 	}
 
-	// DynamoDBクライアントを初期化
+	// 環境変数を取得
+	contentsBucket = os.Getenv("CONTENTS_BUCKET")
+	if contentsBucket == "" {
+		log.Fatalf("Environment variable CONTENTS_BUCKET is required")
+	}
+
+	fileName = os.Getenv("FILE_NAME")
+	if fileName == "" {
+		log.Fatalf("Environment variable FILE_NAME is required")
+	}
+
+	// AWS設定をロード
 	cfg, err := config.LoadDefaultConfig(context.TODO())
 	if err != nil {
 		log.Fatalf("unable to load SDK config, %v", err)
 	}
+
+	// DynamoDBクライアントを初期化
 	dynamodbClient = dynamodb.NewFromConfig(cfg)
+
+	// S3クライアントを初期化
+	s3Client = s3.NewFromConfig(cfg)
 
 	lambda.Start(handler)
 }
