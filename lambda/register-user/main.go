@@ -136,9 +136,9 @@ func handler(ctx context.Context, request events.APIGatewayV2HTTPRequest) (event
 	// 現在のUNIXタイムスタンプを得る
 	now := float64(time.Now().Unix())
 
-	// 署名付きURLを生成
+	// 署名付きURLを生成（GET用）
 	presignClient := s3.NewPresignClient(s3Client)
-	presignRequest, err := presignClient.PresignPutObject(ctx, &s3.PutObjectInput{
+	presignRequest, err := presignClient.PresignGetObject(ctx, &s3.GetObjectInput{
 		Bucket: aws.String(contentsBucket),
 		Key:    aws.String(fileName),
 	}, func(opts *s3.PresignOptions) {
