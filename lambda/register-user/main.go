@@ -17,6 +17,8 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
+	"github.com/aws/aws-sdk-go-v2/service/ses"
+	sestypes "github.com/aws/aws-sdk-go-v2/service/ses/types"
 )
 
 // DynamoDBクライアント
@@ -25,6 +27,9 @@ var dynamodbClient *dynamodb.Client
 // S3クライアント
 var s3Client *s3.Client
 
+// SESクライアント
+var sesClient *ses.Client
+
 // 環境変数から環境名を取得
 var env string
 
@@ -32,6 +37,7 @@ var env string
 var (
 	contentsBucket string
 	fileName       string
+	mailFrom       string
 )
 
 // シーケンステーブルの構造体
@@ -76,6 +82,40 @@ func nextSeq(ctx context.Context, tableName string) (int64, error) {
 	}
 
 	return seqValue, nil
+}
+
+// メール送信関数
+func sendmail(ctx context.Context, to, subject, body string) error {
+	input := &ses.SendEmailInput{
+		Source: aws.String(mailFrom),
+		ReplyToAddresses: []string{
+			mailFrom,
+		},
+		Destination: &sestypes.Destination{
+			ToAddresses: []string{
+				to,
+			},
+		},
+		Message: &sestypes.Message{
+			Subject: &sestypes.Content{
+				Data:    aws.String(subject),
+				Charset: aws.String("UTF-8"),
+			},
+			Body: &sestypes.Body{
+				Text: &sestypes.Content{
+					Data:    aws.String(body),
+					Charset: aws.String("UTF-8"),
+				},
+			},
+		},
+	}
+
+	_, err := sesClient.SendEmail(ctx, input)
+	if err != nil {
+		return fmt.Errorf("failed to send email: %w", err)
+	}
+
+	return nil
 }
 
 func handler(ctx context.Context, request events.APIGatewayV2HTTPRequest) (events.APIGatewayV2HTTPResponse, error) {
@@ -196,6 +236,18 @@ func handler(ctx context.Context, request events.APIGatewayV2HTTPRequest) (event
 		}, nil
 	}
 
+	// 登録完了メールを送信
+	mailbody := fmt.Sprintf(`%s様
+ご登録ありがとうございました。
+下記のURLからダウンロードできます。
+%s`, requestBody.UserName, presignRequest.URL)
+
+	err = sendmail(ctx, requestBody.Email, "登録ありがとうございました", mailbody)
+	if err != nil {
+		log.Printf("Error sending email: %v", err)
+		// メール送信エラーでもAPIは成功として返す（ユーザー登録は完了しているため）
+	}
+
 	// 結果を返す
 	return events.APIGatewayV2HTTPResponse{
 		StatusCode: 200,
@@ -224,6 +276,11 @@ func main() {
 		log.Fatalf("Environment variable FILE_NAME is required")
 	}
 
+	mailFrom = os.Getenv("MAIL_FROM")
+	if mailFrom == "" {
+		log.Fatalf("Environment variable MAIL_FROM is required")
+	}
+
 	// AWS設定をロード
 	cfg, err := config.LoadDefaultConfig(context.TODO())
 	if err != nil {
@@ -235,6 +292,9 @@ func main() {
 
 	// S3クライアントを初期化
 	s3Client = s3.NewFromConfig(cfg)
+
+	// SESクライアントを初期化
+	sesClient = ses.NewFromConfig(cfg)
 
 	lambda.Start(handler)
 }

@@ -8,6 +8,7 @@ require (
 	github.com/aws/aws-sdk-go-v2/config v1.28.6
 	github.com/aws/aws-sdk-go-v2/service/dynamodb v1.37.1
 	github.com/aws/aws-sdk-go-v2/service/s3 v1.83.0
+	github.com/aws/aws-sdk-go-v2/service/ses v1.30.5
 )
 
 require (
