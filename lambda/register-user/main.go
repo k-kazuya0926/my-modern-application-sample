@@ -4,7 +4,9 @@ import (
 	"context"
 	"encoding/base64"
 	"encoding/json"
+	"fmt"
 	"log"
+	"os"
 	"strconv"
 	"time"
 
@@ -18,6 +20,9 @@ import (
 
 // DynamoDBクライアント
 var dynamodbClient *dynamodb.Client
+
+// 環境変数から環境名を取得
+var env string
 
 // シーケンステーブルの構造体
 type SequenceItem struct {
@@ -34,7 +39,7 @@ type RequestBody struct {
 // 連番を更新して返す関数
 func nextSeq(ctx context.Context, tableName string) (int64, error) {
 	input := &dynamodb.UpdateItemInput{
-		TableName: aws.String("my-modern-application-sample-prod-sequences"),
+		TableName: aws.String(fmt.Sprintf("my-modern-application-sample-%s-sequences", env)),
 		Key: map[string]types.AttributeValue{
 			"table_name": &types.AttributeValueMemberS{
 				Value: tableName,
@@ -72,7 +77,7 @@ func handler(ctx context.Context, request events.APIGatewayV2HTTPRequest) (event
 	}()
 
 	// シーケンスデータを得る
-	nextSeq, err := nextSeq(ctx, "my-modern-application-sample-prod-users")
+	nextSeq, err := nextSeq(ctx, fmt.Sprintf("my-modern-application-sample-%s-users", env))
 	if err != nil {
 		log.Printf("Error getting next sequence: %v", err)
 		return events.APIGatewayV2HTTPResponse{
@@ -144,7 +149,7 @@ func handler(ctx context.Context, request events.APIGatewayV2HTTPRequest) (event
 
 	// DynamoDBにアイテムを保存
 	putInput := &dynamodb.PutItemInput{
-		TableName: aws.String("my-modern-application-sample-prod-users"),
+		TableName: aws.String(fmt.Sprintf("my-modern-application-sample-%s-users", env)),
 		Item:      item,
 	}
 
@@ -171,6 +176,12 @@ func handler(ctx context.Context, request events.APIGatewayV2HTTPRequest) (event
 }
 
 func main() {
+	// 環境変数ENVを取得（必須）
+	env = os.Getenv("ENV")
+	if env == "" {
+		log.Fatalf("Environment variable ENV is required")
+	}
+
 	// DynamoDBクライアントを初期化
 	cfg, err := config.LoadDefaultConfig(context.TODO())
 	if err != nil {
