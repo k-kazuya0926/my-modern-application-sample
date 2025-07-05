@@ -12,7 +12,6 @@ import (
 	"github.com/aws/aws-lambda-go/lambda"
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/config"
-	"github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
 )
@@ -24,15 +23,6 @@ var dynamodbClient *dynamodb.Client
 type SequenceItem struct {
 	TableName string `json:"table_name"`
 	Seq       int64  `json:"seq"`
-}
-
-// ユーザーテーブルの構造体
-type UserItem struct {
-	ID         int64   `json:"id" dynamodb:"id"`
-	UserName   string  `json:"user_name" dynamodb:"user_name"`
-	Email      string  `json:"email" dynamodb:"email"`
-	AcceptedAt float64 `json:"accepted_at" dynamodb:"accepted_at"`
-	Host       string  `json:"host" dynamodb:"host"`
 }
 
 // リクエストボディの構造体
@@ -94,9 +84,6 @@ func handler(ctx context.Context, request events.APIGatewayV2HTTPRequest) (event
 		}, nil
 	}
 
-	// デバッグ用：取得したシーケンス値をログ出力
-	log.Printf("Next sequence value: %d", nextSeq)
-
 	// フォームに入力されたデータを得る
 	var body string
 	if request.IsBase64Encoded {
@@ -135,34 +122,9 @@ func handler(ctx context.Context, request events.APIGatewayV2HTTPRequest) (event
 	// 現在のUNIXタイムスタンプを得る
 	now := float64(time.Now().Unix())
 
-	// userテーブルに登録する
-	userItem := UserItem{
-		ID:         nextSeq,
-		UserName:   requestBody.UserName,
-		Email:      requestBody.Email,
-		AcceptedAt: now,
-		Host:       host,
-	}
-
-	// DynamoDBアイテムに変換
-	item, err := attributevalue.MarshalMap(userItem)
-	if err != nil {
-		log.Printf("Error marshaling user item: %v", err)
-		return events.APIGatewayV2HTTPResponse{
-			StatusCode: 500,
-			Headers: map[string]string{
-				"Content-Type": "application/json",
-			},
-			Body: `{"error": "内部エラーが発生しました"}`,
-		}, nil
-	}
-
-	// デバッグ用：アイテムの内容をログ出力
-	log.Printf("UserItem before marshal: %+v", userItem)
-	log.Printf("DynamoDB item after marshal: %+v", item)
-
-	// 手動でDynamoDBアイテムを作成（デバッグ用）
-	manualItem := map[string]types.AttributeValue{
+	// DynamoDBアイテムを手動で作成
+	// 注意: attributevalue.MarshalMap()はdynamodbタグを正しく認識しないため、手動で作成
+	item := map[string]types.AttributeValue{
 		"id": &types.AttributeValueMemberN{
 			Value: strconv.FormatInt(nextSeq, 10),
 		},
@@ -179,12 +141,11 @@ func handler(ctx context.Context, request events.APIGatewayV2HTTPRequest) (event
 			Value: host,
 		},
 	}
-	log.Printf("Manual DynamoDB item: %+v", manualItem)
 
 	// DynamoDBにアイテムを保存
 	putInput := &dynamodb.PutItemInput{
 		TableName: aws.String("my-modern-application-sample-prod-users"),
-		Item:      manualItem, // 手動で作成したアイテムを使用
+		Item:      item,
 	}
 
 	_, err = dynamodbClient.PutItem(ctx, putInput)
