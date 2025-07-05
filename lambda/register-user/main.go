@@ -139,9 +139,8 @@ func handler(ctx context.Context, request events.APIGatewayV2HTTPRequest) (event
 	// 署名付きURLを生成
 	presignClient := s3.NewPresignClient(s3Client)
 	presignRequest, err := presignClient.PresignPutObject(ctx, &s3.PutObjectInput{
-		Bucket:      aws.String(contentsBucket),
-		Key:         aws.String(fileName),
-		ContentType: aws.String("image/jpeg"),
+		Bucket: aws.String(contentsBucket),
+		Key:    aws.String(fileName),
 	}, func(opts *s3.PresignOptions) {
 		opts.Expires = time.Duration(8) * time.Hour
 	})
