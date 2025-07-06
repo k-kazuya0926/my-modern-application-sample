@@ -3,7 +3,7 @@ on:
   push:
     branches: [main]
     paths:
-      - lambda/hello-world/**
+      - applications/hello-world/**
       - .github/workflows/build-lambda-hello-world.yml
 defaults: # パイプエラーを拾えるようにデフォルトシェルを設定
   run:

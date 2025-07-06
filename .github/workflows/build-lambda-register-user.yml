@@ -3,7 +3,7 @@ on:
   push:
     branches: [main]
     paths:
-      - lambda/register-user/**
+      - applications/register-user/**
       - .github/workflows/build-lambda-register-user.yml
 defaults: # パイプエラーを拾えるようにデフォルトシェルを設定
   run:

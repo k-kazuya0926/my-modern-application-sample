@@ -9,7 +9,7 @@
             "type": "go",
             "request": "launch",
             "mode": "auto",
-            "program": "${workspaceFolder}/lambda/tmp",
+            "program": "${workspaceFolder}/applications/tmp",
             "env": {
                 "ENV": "LOCAL"
             },

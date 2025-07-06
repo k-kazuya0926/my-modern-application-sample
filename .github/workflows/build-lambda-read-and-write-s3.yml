@@ -3,7 +3,7 @@ on:
   push:
     branches: [main]
     paths:
-      - lambda/read-and-write-s3/**
+      - applications/read-and-write-s3/**
       - .github/workflows/build-lambda-read-and-write-s3.yml
 defaults: # パイプエラーを拾えるようにデフォルトシェルを設定
   run:
