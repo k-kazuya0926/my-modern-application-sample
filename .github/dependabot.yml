@@ -4,3 +4,9 @@ updates:
     directory: "/"
     schedule:
       interval: daily
+    pull-request-branch-name:
+      separator: "-"
+    reviewers:
+      - "k-kazuya0926"
+    allow:
+      - dependency-type: "all"
