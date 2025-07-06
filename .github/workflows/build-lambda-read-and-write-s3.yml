@@ -40,7 +40,7 @@ jobs:
           dockerfile-path: applications/shared/lambda
           function-name: read-and-write-s3
       # デプロイまで行う場合は次のようにする
-      # - uses: ./.github/actions/deploy-lambda/
-      #   with:
-      #     function-name: ${{ github.event.repository.name }}-${{ matrix.env }}-read-and-write-s3
-      #     image-uri: ${{ steps.build.outputs.image-uri }}
+      - uses: ./.github/actions/deploy-lambda/
+        with:
+          function-name: ${{ github.event.repository.name }}-${{ matrix.env }}-read-and-write-s3
+          image-uri: ${{ steps.build.outputs.image-uri }}
