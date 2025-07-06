@@ -40,7 +40,7 @@ jobs:
           dockerfile-path: applications/shared/lambda
           function-name: hello-world
       # デプロイまで行う場合は次のようにする
-      - uses: ./.github/actions/deploy-lambda/
-        with:
-          function-name: ${{ github.event.repository.name }}-${{ matrix.env }}-hello-world
-          image-uri: ${{ steps.build.outputs.image-uri }}
+      # - uses: ./.github/actions/deploy-lambda/
+      #   with:
+      #     function-name: ${{ github.event.repository.name }}-${{ matrix.env }}-hello-world
+      #     image-uri: ${{ steps.build.outputs.image-uri }}
