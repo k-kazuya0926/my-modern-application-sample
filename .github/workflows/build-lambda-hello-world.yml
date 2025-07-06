@@ -37,7 +37,7 @@ jobs:
         id: build
         with:
           ecr-repository-uri: ${{ env.ECR_REPOSITORY_URI }}
-          dockerfile-path: lambda
+          dockerfile-path: applications/shared/lambda
           function-name: hello-world
       # デプロイまで行う場合は次のようにする
       # - uses: ./.github/actions/deploy-lambda/

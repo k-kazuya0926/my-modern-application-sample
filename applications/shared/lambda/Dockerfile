@@ -4,10 +4,12 @@ FROM golang:1.24-alpine AS build
 ARG FUNCTION_NAME
 WORKDIR /app
 
-COPY ${FUNCTION_NAME}/go.mod ${FUNCTION_NAME}/go.sum ./
+# 関数のディレクトリから go.mod と go.sum をコピー
+COPY ../../${FUNCTION_NAME}/go.mod ../../${FUNCTION_NAME}/go.sum ./
 RUN go mod download && go mod verify
 
-COPY ${FUNCTION_NAME}/ .
+# 関数のディレクトリから全てのファイルをコピー
+COPY ../../${FUNCTION_NAME}/ .
 
 # セキュリティ: CGOを無効化し、静的リンクでビルド
 RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build \
