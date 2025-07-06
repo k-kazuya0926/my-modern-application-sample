@@ -13,6 +13,7 @@ on:
           - tmp
           - read-and-write-s3
           - register-user
+          - send-message
         required: true
         description: "Lambda関数名"
       image-tag:
