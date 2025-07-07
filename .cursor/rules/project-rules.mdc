@@ -7,24 +7,13 @@ alwaysApply: true
 # My Modern Application Sample - Cursor Rules
 
 ## プロジェクト概要
-このプロジェクトはAWS Lambdaを使用したGoアプリケーションのサンプル集です。
-各アプリケーションは独立したLambda関数として動作し、AWS SDK Go v2を使用しています。
+このプロジェクトはモダンアプリケーションのサンプル集です。
 
 ## 技術スタック
-- **言語**: Go 1.24
-- **実行環境**: AWS Lambda
+- **言語**: Go
 - **AWS SDK**: aws-sdk-go-v2
-- **コンテナ**: Docker (Lambda Runtime)
+- **コンテナ**: Docker
 - **アーキテクチャ**: サーバーレス
-
-## プロジェクト構造
-- `applications/`: 各Lambda関数のソースコード
-  - `hello-world/`: 基本的なHello World Lambda
-  - `register-user/`: ユーザー登録機能（DynamoDB、S3、SES連携）
-  - `send-message/`: メッセージ送信機能（DynamoDB、SQS連携）
-  - `read-and-write-s3/`: S3ファイル処理（暗号化ZIP作成）
-  - `shared/lambda/`: 共通Dockerファイル
-  - `tmp/`: 一時作業用
 
 ## コーディング規約
 
@@ -81,7 +70,7 @@ alwaysApply: true
 ## 開発時のベストプラクティス
 - コード変更前にローカルでビルドテスト
 - AWS リソースの作成/削除はIaCツールを使用
-- 環境別（dev/staging/prod）の設定を分離
+- 環境別（dev/stg/prod）の設定を分離
 - Lambda関数のメモリとタイムアウト設定を適切に調整
 - CloudWatch Logsでの監視とデバッグを考慮
 
