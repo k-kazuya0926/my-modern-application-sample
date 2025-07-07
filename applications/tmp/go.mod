@@ -1,4 +1,4 @@
-module github.com/k-kazuya0926/my-modern-application-sample
+module github.com/k-kazuya0926/my-modern-application-sample/applications/tmp
 
 go 1.24
 

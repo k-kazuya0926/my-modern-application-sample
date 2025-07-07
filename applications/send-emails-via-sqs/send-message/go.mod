@@ -1,4 +1,4 @@
-module github.com/k-kazuya0926/my-modern-application-sample
+module github.com/k-kazuya0926/my-modern-application-sample/applications/send-emails-via-sqs/send-message
 
 go 1.24
 
