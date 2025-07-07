@@ -1,4 +1,4 @@
-module github.com/k-kazuya0926/my-modern-application-sample
+module github.com/k-kazuya0926/my-modern-application-sample/hello-world
 
 go 1.24
 
