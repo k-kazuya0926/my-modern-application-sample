@@ -9,7 +9,8 @@ inputs:
     default: applications
     description: Dockerfile内の基準ディレクトリ
   dockerfile-path:
-    required: true
+    required: false
+    default: applications/shared/lambda/Dockerfile
     description: Dockerfileのパス
   function-name:
     required: true
@@ -31,7 +32,7 @@ runs:
       with:
         push: true
         context: ${{ inputs.context }}
-        file: ${{ inputs.dockerfile-path }}/Dockerfile
+        file: ${{ inputs.dockerfile-path }}
         platforms: linux/amd64
         tags: ${{ steps.meta.outputs.tags }}
         labels: ${{ steps.meta.outputs.labels }}

@@ -38,7 +38,6 @@ jobs:
         with:
           ecr-repository-uri: ${{ env.ECR_REPOSITORY_URI }}
           context: applications/send-emails-via-sqs
-          dockerfile-path: applications/shared/lambda
           function-name: send-message
       # デプロイまで行う場合は次のようにする
       - uses: ./.github/actions/deploy-lambda/
