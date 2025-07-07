@@ -3,7 +3,7 @@ on:
   push:
     branches: [main]
     paths:
-      - applications/send-message/**
+      - applications/send-emails-via-sqs/send-message/**
       - .github/workflows/build-lambda-send-message.yml
 defaults: # パイプエラーを拾えるようにデフォルトシェルを設定
   run:
@@ -37,6 +37,7 @@ jobs:
         id: build
         with:
           ecr-repository-uri: ${{ env.ECR_REPOSITORY_URI }}
+          context: applications/send-emails-via-sqs
           dockerfile-path: applications/shared/lambda
           function-name: send-message
       # デプロイまで行う場合は次のようにする

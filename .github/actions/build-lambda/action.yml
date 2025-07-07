@@ -4,6 +4,10 @@ inputs:
   ecr-repository-uri:
     required: true
     description: ECRリポジトリのURI
+  context:
+    required: false
+    default: applications
+    description: Dockerfile内の基準ディレクトリ
   dockerfile-path:
     required: true
     description: Dockerfileのパス
@@ -26,7 +30,7 @@ runs:
     - uses: docker/build-push-action@v5     # コンテナイメージのビルドとプッシュ
       with:
         push: true
-        context: applications # Dockerfile内の基準ディレクトリ
+        context: ${{ inputs.context }}
         file: ${{ inputs.dockerfile-path }}/Dockerfile
         platforms: linux/amd64
         tags: ${{ steps.meta.outputs.tags }}
