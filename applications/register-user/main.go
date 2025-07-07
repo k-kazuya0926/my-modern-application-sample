@@ -30,11 +30,9 @@ var s3Client *s3.Client
 // SESクライアント
 var sesClient *ses.Client
 
-// 環境変数から環境名を取得
-var env string
-
 // 環境変数
 var (
+	env            string
 	contentsBucket string
 	fileName       string
 	mailFrom       string

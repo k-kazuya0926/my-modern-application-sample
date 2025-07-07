@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
+	"os"
 
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
@@ -15,6 +16,8 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/sqs"
 	sqsTypes "github.com/aws/aws-sdk-go-v2/service/sqs/types"
 )
+
+var env string
 
 type MailAddress struct {
 	Email    string `json:"email"`
@@ -30,13 +33,13 @@ func handler(ctx context.Context, event events.S3Event) error {
 		return fmt.Errorf("failed to load AWS config: %v", err)
 	}
 
-	// ①DynamoDBのmailaddressesテーブルを操作するオブジェクト
+	// ①DynamoDBのmail-addressesテーブルを操作するオブジェクト
 	dynamoClient := dynamodb.NewFromConfig(cfg)
-	tableName := "my-modern-application-sample-prod-mail-addresses"
+	tableName := fmt.Sprintf("my-modern-application-sample-%s-mail-addresses", env)
 
 	// ②SQSのキューを操作するオブジェクト
 	sqsClient := sqs.NewFromConfig(cfg)
-	queueName := "my-modern-application-sample-prod-send-mail"
+	queueName := fmt.Sprintf("my-modern-application-sample-%s-send-mail", env)
 
 	// キューのURLを取得
 	queueResult, err := sqsClient.GetQueueUrl(ctx, &sqs.GetQueueUrlInput{
@@ -52,7 +55,7 @@ func handler(ctx context.Context, event events.S3Event) error {
 		bucketName := record.S3.Bucket.Name
 		fileName := record.S3.Object.Key
 
-		// ④has_errorが0のものをmailaddressesテーブルから取得
+		// ④has_errorが0のものをmail-addressesテーブルから取得
 		queryInput := &dynamodb.QueryInput{
 			TableName:              aws.String(tableName),
 			IndexName:              aws.String("has_error-index"),
@@ -144,5 +147,10 @@ func handler(ctx context.Context, event events.S3Event) error {
 }
 
 func main() {
+	env = os.Getenv("ENV")
+	if env == "" {
+		log.Fatalf("Environment variable ENV is required")
+	}
+
 	lambda.Start(handler)
 }
