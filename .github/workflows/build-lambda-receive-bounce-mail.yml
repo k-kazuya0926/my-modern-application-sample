@@ -40,7 +40,7 @@ jobs:
           context: applications/send-emails-via-sqs
           function-name: receive-bounce-mail
       # デプロイまで行う場合は次のようにする
-      - uses: ./.github/actions/deploy-lambda/
-        with:
-          function-name: ${{ github.event.repository.name }}-${{ matrix.env }}-receive-bounce-mail
-          image-uri: ${{ steps.build.outputs.image-uri }}
+      # - uses: ./.github/actions/deploy-lambda/
+      #   with:
+      #     function-name: ${{ github.event.repository.name }}-${{ matrix.env }}-receive-bounce-mail
+      #     image-uri: ${{ steps.build.outputs.image-uri }}
