@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"fmt"
+	"io"
 	"log"
 	"os"
 	"strconv"
@@ -101,14 +102,13 @@ func getMailDataFromS3(ctx context.Context, bucketName, fileName string) (string
 	}
 	defer result.Body.Close()
 
-	// レスポンスボディを読み取り
-	buf := make([]byte, *result.ContentLength)
-	_, err = result.Body.Read(buf)
+	// レスポンスボディを安全に読み取り
+	data, err := io.ReadAll(result.Body)
 	if err != nil {
 		return "", err
 	}
 
-	return string(buf), nil
+	return string(data), nil
 }
 
 // parseMailData メールデータを解析してsubjectとbodyを取得する
