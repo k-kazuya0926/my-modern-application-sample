@@ -14,6 +14,8 @@ on:
           - read-and-write-s3
           - register-user
           - send-message
+          - read-message-and-send-mail
+          - receive-bounce-mail
         required: true
         description: "Lambda関数名"
       image-tag:

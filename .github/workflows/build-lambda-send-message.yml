@@ -40,7 +40,7 @@ jobs:
           context: applications/send-emails-via-sqs
           function-name: send-message
       # デプロイまで行う場合は次のようにする
-      - uses: ./.github/actions/deploy-lambda/
-        with:
-          function-name: ${{ github.event.repository.name }}-${{ matrix.env }}-send-message
-          image-uri: ${{ steps.build.outputs.image-uri }}
+      # - uses: ./.github/actions/deploy-lambda/
+      #   with:
+      #     function-name: ${{ github.event.repository.name }}-${{ matrix.env }}-send-message
+      #     image-uri: ${{ steps.build.outputs.image-uri }}
