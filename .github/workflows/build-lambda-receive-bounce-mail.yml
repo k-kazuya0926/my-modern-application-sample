@@ -1,10 +1,10 @@
-name: build-lambda-read-bounce-mail
+name: build-lambda-receive-bounce-mail
 on:
   push:
     branches: [main]
     paths:
-      - applications/send-emails-via-sqs/read-bounce-mail/**
-      - .github/workflows/build-lambda-read-bounce-mail.yml
+      - applications/send-emails-via-sqs/receive-bounce-mail/**
+      - .github/workflows/build-lambda-receive-bounce-mail.yml
 defaults: # パイプエラーを拾えるようにデフォルトシェルを設定
   run:
     shell: bash
@@ -25,7 +25,7 @@ jobs:
     env:
       ROLE_ARN: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/${{ github.event.repository.name }}-${{ matrix.env }}-github-actions
       SESSION_NAME: gh-oidc-${{ github.run_id }}-${{ github.run_attempt }}
-      ECR_REPOSITORY_URI: ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ vars.AWS_REGION }}.amazonaws.com/${{ github.event.repository.name }}-${{ matrix.env }}-read-bounce-mail
+      ECR_REPOSITORY_URI: ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ vars.AWS_REGION }}.amazonaws.com/${{ github.event.repository.name }}-${{ matrix.env }}-receive-bounce-mail
     steps:
       - uses: actions/checkout@v4
       - uses: aws-actions/configure-aws-credentials@v4 # 一時クレデンシャルの取得
@@ -38,9 +38,9 @@ jobs:
         with:
           ecr-repository-uri: ${{ env.ECR_REPOSITORY_URI }}
           context: applications/send-emails-via-sqs
-          function-name: read-bounce-mail
+          function-name: receive-bounce-mail
       # デプロイまで行う場合は次のようにする
       # - uses: ./.github/actions/deploy-lambda/
       #   with:
-      #     function-name: ${{ github.event.repository.name }}-${{ matrix.env }}-read-bounce-mail
+      #     function-name: ${{ github.event.repository.name }}-${{ matrix.env }}-receive-bounce-mail
       #     image-uri: ${{ steps.build.outputs.image-uri }}

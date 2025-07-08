@@ -7,7 +7,7 @@ import (
 )
 
 func handler(ctx context.Context) (string, error) {
-	return "read-bounce-mail", nil
+	return "receive-bounce-mail", nil
 }
 
 func main() {
