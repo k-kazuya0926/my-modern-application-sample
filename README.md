@@ -1,1 +1,115 @@
 # my-modern-application-sample
+
+## 技術スタック
+
+- **言語**: Go 1.24
+- **コンテナ**: Docker
+- **アーキテクチャ**: サーバーレス (AWS Lambda)
+- **インフラ**: AWS (DynamoDB, S3, SES, SQS, SNS)
+- **CI/CD**: GitHub Actions
+- **セキュリティスキャン**: Trivy
+
+## アプリケーション一覧
+
+### 1. hello-world
+**概要**: 基本的なLambda関数のサンプル
+**機能**: "Hello world" メッセージを返すシンプルなLambda関数
+**技術スタック**:
+- Go
+- aws-lambda-go
+
+### 2. register-user
+**概要**: ユーザー登録とメール送信機能
+**機能**:
+- API Gateway経由でユーザー情報（名前・メールアドレス）を受信
+- DynamoDBにユーザー情報を保存（連番ID自動生成）
+- S3署名付きURLを生成
+- SES経由で登録完了メールを送信
+
+**技術スタック**:
+- Go
+- AWS Lambda
+- API Gateway v2
+- DynamoDB（ユーザーテーブル・シーケンステーブル）
+- S3（署名付きURL生成）
+- SES（メール送信）
+
+### 3. read-and-write-s3
+**概要**: S3ファイル処理とZIP暗号化
+**機能**:
+- S3イベントトリガーでファイルアップロードを検知
+- アップロードされたファイルをダウンロード
+- パスワード付きZIPファイルに変換
+- 別のS3バケットにアップロード
+
+**技術スタック**:
+- Go
+- AWS Lambda
+- S3（イベントトリガー・ファイル操作）
+- alexmullins/zip（パスワード付きZIP作成）
+
+### 4. send-emails-via-sqs（メール配信システム）
+
+#### 4.1 send-message
+**概要**: メール送信キューへの登録
+**機能**:
+- S3イベントトリガーで処理開始
+- DynamoDBからエラーのないメールアドレスを取得
+- SQSキューにメール送信メッセージを登録
+- 送信ステータスを未送信に更新
+
+**技術スタック**:
+- Go
+- AWS Lambda
+- S3（イベントトリガー）
+- DynamoDB（メールアドレステーブル）
+- SQS（メッセージキュー）
+
+#### 4.2 read-message-and-send-mail
+**概要**: SQSメッセージ処理とメール送信
+**機能**:
+- SQSメッセージを受信・処理
+- S3からメール本文テンプレートを取得
+- 重複送信チェック（DynamoDB）
+- SES経由でメール送信
+
+**技術スタック**:
+- Go
+- AWS Lambda
+- SQS（メッセージ受信）
+- S3（メールテンプレート取得）
+- DynamoDB（送信状態管理）
+- SES（メール送信）
+
+#### 4.3 receive-bounce-mail
+**概要**: バウンスメール処理
+**機能**:
+- SNS経由でSESバウンス通知を受信
+- バウンスしたメールアドレスのエラーフラグを更新
+- 今後の送信対象から除外
+
+**技術スタック**:
+- Go
+- AWS Lambda
+- SNS（バウンス通知受信）
+- DynamoDB（エラーステータス更新）
+
+### 5. tmp
+**概要**: 一時的な実験用Lambda関数
+
+**技術スタック**:
+- Go
+- AWS Lambda
+- 他
+
+## 共通インフラ
+
+### Docker設定
+- **場所**: `applications/shared/lambda/Dockerfile`
+- **特徴**: マルチステージビルド対応
+- **用途**: 全Lambda関数共通のコンテナイメージ作成
+
+## 参考書籍
+
+- GitHub CI/CD実践ガイド――持続可能なソフトウェア開発を支えるGitHub Actionsの設計と運用
+- AWS Lambda実践ガイド 第2版
