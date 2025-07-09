@@ -6,6 +6,7 @@
 - **コンテナ**: Docker
 - **アーキテクチャ**: サーバーレス (AWS Lambda)
 - **インフラ**: AWS (DynamoDB, S3, SES, SQS, SNS)
+  - https://github.com/k-kazuya0926/my-modern-application-sample-infra
 - **CI/CD**: GitHub Actions
 - **セキュリティスキャン**: Trivy
 
@@ -101,13 +102,6 @@
 - Go
 - AWS Lambda
 - 他
-
-## 共通インフラ
-
-### Docker設定
-- **場所**: `applications/shared/lambda/Dockerfile`
-- **特徴**: マルチステージビルド対応
-- **用途**: 全Lambda関数共通のコンテナイメージ作成
 
 ## 参考書籍
 
