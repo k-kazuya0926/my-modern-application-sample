@@ -107,7 +107,6 @@
 - Go
 - AWS Lambda
 - AWS AppConfig（機能フラグ設定管理）
-- aws-sdk-go-v2/service/appconfigdata
 
 ### 6. tmp
 **概要**: 一時的な実験用Lambda関数
