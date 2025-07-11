@@ -29,17 +29,8 @@ type Response struct {
 }
 
 // AppConfig設定構造体
-type FeatureFlags struct {
-	Flags map[string]struct {
-		Name           string                 `json:"name"`
-		Enabled        bool                   `json:"enabled"`
-		Variants       map[string]interface{} `json:"variants"`
-		DefaultVariant string                 `json:"defaultVariant"`
-	} `json:"flags"`
-	Values map[string]struct {
-		Enabled bool `json:"enabled"`
-	} `json:"values"`
-	Version string `json:"version"`
+type FeatureFlags map[string]struct {
+	Enabled bool `json:"enabled"`
 }
 
 // セッション情報を保持する構造体
@@ -74,7 +65,9 @@ func init() {
 }
 
 // AppConfigからfeature flagsを取得
-func getFeatureFlags(ctx context.Context) (*FeatureFlags, error) {
+func getFeatureFlags(ctx context.Context) (FeatureFlags, error) {
+	// // セッショントークンがない場合は新しいセッションを開始
+	// if configSession.Token == "" {
 	startSessionInput := &appconfigdata.StartConfigurationSessionInput{
 		ApplicationIdentifier:          &applicationID,
 		EnvironmentIdentifier:          &environmentID,
@@ -88,6 +81,7 @@ func getFeatureFlags(ctx context.Context) (*FeatureFlags, error) {
 
 	configSession.Token = *sessionResp.InitialConfigurationToken
 	log.Printf("新しいAppConfigセッションを開始しました")
+	// }
 
 	// 最新の設定データを取得
 	getConfigInput := &appconfigdata.GetLatestConfigurationInput{
@@ -115,7 +109,7 @@ func getFeatureFlags(ctx context.Context) (*FeatureFlags, error) {
 	}
 
 	log.Printf("AppConfigから設定を取得しました: %s", string(configResp.Configuration))
-	return &flags, nil
+	return flags, nil
 }
 
 // Lambdaハンドラー関数
@@ -142,9 +136,9 @@ func handler(ctx context.Context) (Response, error) {
 		}, nil
 	}
 
-	// flag1の状態を確認
+	// flag1の状態を確認 - 直接マップからアクセス
 	flag1Enabled := false
-	if flag1Value, exists := flags.Values["flag1"]; exists {
+	if flag1Value, exists := flags["flag1"]; exists {
 		flag1Enabled = flag1Value.Enabled
 	}
 
