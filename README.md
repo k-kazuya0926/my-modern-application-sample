@@ -95,7 +95,21 @@
 - SNS（バウンス通知受信）
 - DynamoDB（エラーステータス更新）
 
-### 5. tmp
+### 5. feature-flags
+**概要**: AWS AppConfigを使用した機能フラグ管理システム\
+**機能**:
+- AWS AppConfigから機能フラグ設定を取得
+- セッション管理とキャッシュ機能
+- 設定データのJSONパース
+- 機能フラグの詳細情報（有効/無効状態、属性値）を返却
+
+**技術スタック**:
+- Go
+- AWS Lambda
+- AWS AppConfig（機能フラグ設定管理）
+- aws-sdk-go-v2/service/appconfigdata
+
+### 6. tmp
 **概要**: 一時的な実験用Lambda関数
 
 **技術スタック**:
