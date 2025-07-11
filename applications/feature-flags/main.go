@@ -39,7 +39,8 @@ type FeatureFlags map[string]FeatureFlagDetails
 
 // セッション情報を保持する構造体
 type ConfigSession struct {
-	Token string
+	Token       string
+	CachedFlags FeatureFlags // キャッシュされた設定値
 }
 
 var configSession *ConfigSession
@@ -100,10 +101,18 @@ func getFeatureFlags(ctx context.Context) (FeatureFlags, error) {
 	// 次回用のトークンを保存
 	configSession.Token = *configResp.NextPollConfigurationToken
 
-	// 設定データが空でない場合のみパース
+	// 設定データが空の場合（設定に変更がない場合）
 	if len(configResp.Configuration) == 0 {
 		log.Printf("設定データが更新されていません（既に最新の設定を取得済み）")
-		return nil, fmt.Errorf("設定データが空です")
+
+		// キャッシュされた設定がある場合はそれを返す
+		if configSession.CachedFlags != nil {
+			log.Printf("キャッシュされた設定を返します")
+			return configSession.CachedFlags, nil
+		}
+
+		// 初回取得でキャッシュもない場合はエラー
+		return nil, fmt.Errorf("初回設定取得に失敗: 設定データが空です")
 	}
 
 	// JSONをパース
@@ -112,7 +121,10 @@ func getFeatureFlags(ctx context.Context) (FeatureFlags, error) {
 		return nil, fmt.Errorf("AppConfig設定のパースに失敗: %w", err)
 	}
 
-	log.Printf("AppConfigから設定を取得しました: %s", string(configResp.Configuration))
+	// 正常に取得できた設定をキャッシュに保存
+	configSession.CachedFlags = flags
+	log.Printf("AppConfigから設定を取得してキャッシュに保存しました: %s", string(configResp.Configuration))
+
 	return flags, nil
 }
 
