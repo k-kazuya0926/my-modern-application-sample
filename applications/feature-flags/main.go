@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"time"
 
 	"github.com/aws/aws-lambda-go/lambda"
 	"github.com/aws/aws-sdk-go-v2/config"
@@ -24,8 +25,14 @@ var (
 
 // レスポンス構造体
 type Response struct {
+	StatusCode int          `json:"statusCode"`
+	Body       ResponseBody `json:"body"`
+}
+
+type ResponseBody struct {
 	AllFlags map[string]FeatureFlagDetails `json:"all_flags,omitempty"`
 	Message  string                        `json:"message"`
+	Error    string                        `json:"error,omitempty"`
 }
 
 // 機能フラグの詳細情報を含む構造体
@@ -47,14 +54,31 @@ var configSession *ConfigSession
 
 // 初期化処理
 func init() {
-	// 環境変数の読み込み
+	// パニックリカバリーの実装
+	defer func() {
+		if r := recover(); r != nil {
+			log.Printf("初期化中にパニックが発生しました: %v", r)
+			panic(r) // 初期化時のパニックは再度パニックさせる
+		}
+	}()
+
+	// 環境変数の読み込みと厳密なバリデーション
 	applicationID = os.Getenv("APPCONFIG_APPLICATION_ID")
 	environmentID = os.Getenv("APPCONFIG_ENVIRONMENT_ID")
 	configurationProfileID = os.Getenv("APPCONFIG_CONFIGURATION_PROFILE_ID")
 
-	if applicationID == "" || environmentID == "" || configurationProfileID == "" {
-		log.Printf("警告: AppConfig環境変数が設定されていません")
+	// 必須環境変数のバリデーション
+	if applicationID == "" {
+		log.Fatalf("必須環境変数が未設定です: APPCONFIG_APPLICATION_ID")
 	}
+	if environmentID == "" {
+		log.Fatalf("必須環境変数が未設定です: APPCONFIG_ENVIRONMENT_ID")
+	}
+	if configurationProfileID == "" {
+		log.Fatalf("必須環境変数が未設定です: APPCONFIG_CONFIGURATION_PROFILE_ID")
+	}
+
+	log.Printf("環境変数を読み込みました")
 
 	// AWS設定の読み込み
 	cfg, err := config.LoadDefaultConfig(context.TODO())
@@ -67,10 +91,16 @@ func init() {
 
 	// セッション情報の初期化
 	configSession = &ConfigSession{}
+
+	log.Printf("feature-flags Lambda関数の初期化が完了しました")
 }
 
 // AppConfigからfeature flagsを取得
 func getFeatureFlags(ctx context.Context) (FeatureFlags, error) {
+	// コンテキストタイムアウトの設定（30秒）
+	ctx, cancel := context.WithTimeout(ctx, 30*time.Second)
+	defer cancel()
+
 	// セッショントークンがない場合は新しいセッションを開始
 	if configSession.Token == "" {
 		startSessionInput := &appconfigdata.StartConfigurationSessionInput{
@@ -123,13 +153,21 @@ func getFeatureFlags(ctx context.Context) (FeatureFlags, error) {
 
 	// 正常に取得できた設定をキャッシュに保存
 	configSession.CachedFlags = flags
-	log.Printf("AppConfigから設定を取得してキャッシュに保存しました: %s", string(configResp.Configuration))
+	log.Printf("AppConfigから設定を取得してキャッシュに保存しました, データ: %s", string(configResp.Configuration))
 
 	return flags, nil
 }
 
 // Lambdaハンドラー関数
 func handler(ctx context.Context) (Response, error) {
+	// パニックリカバリーの実装
+	defer func() {
+		if r := recover(); r != nil {
+			log.Printf("ハンドラー実行中にパニックが発生しました: %v", r)
+			// パニック時は500エラーを返す
+		}
+	}()
+
 	log.Printf("feature-flags Lambda関数が開始されました")
 
 	// AppConfigからfeature flagsを取得
@@ -137,14 +175,23 @@ func handler(ctx context.Context) (Response, error) {
 	if err != nil {
 		log.Printf("AppConfigからの設定取得に失敗: %v", err)
 		return Response{
-			AllFlags: nil,
-			Message:  fmt.Sprintf("AppConfig取得エラー: %v", err),
+			StatusCode: 500,
+			Body: ResponseBody{
+				AllFlags: nil,
+				Message:  "内部サーバーエラーが発生しました",
+				Error:    "AppConfig取得エラー", // 内部エラーの詳細は外部に露出しない
+			},
 		}, nil
 	}
 
+	log.Printf("AppConfigから設定を正常に取得しました, フラグ数: %d", len(flags))
+
 	return Response{
-		AllFlags: flags,
-		Message:  "AppConfigからflag1を正常に取得しました",
+		StatusCode: 200,
+		Body: ResponseBody{
+			AllFlags: flags,
+			Message:  "AppConfigから設定を正常に取得しました",
+		},
 	}, nil
 }
 
