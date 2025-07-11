@@ -24,32 +24,30 @@ var (
 
 // レスポンス構造体
 type Response struct {
-	Flag1Enabled bool                          `json:"flag1_enabled"`
-	Flag1Details *FeatureFlagDetails           `json:"flag1_details,omitempty"`
-	AllFlags     map[string]FeatureFlagDetails `json:"all_flags,omitempty"`
-	Message      string                        `json:"message"`
+	AllFlags map[string]FeatureFlagDetails `json:"all_flags,omitempty"`
+	Message  string                        `json:"message"`
 }
 
 // 機能フラグの詳細情報を含む構造体
 type FeatureFlagDetails struct {
-	Enabled        bool                   `json:"enabled"`
-	Description    string                 `json:"description,omitempty"`
-	Value          interface{}            `json:"value,omitempty"`
-	ExpirationDate string                 `json:"expiration_date,omitempty"`
-	IsTemporary    bool                   `json:"is_temporary,omitempty"`
-	CreatedDate    string                 `json:"created_date,omitempty"`
-	ReviewDate     string                 `json:"review_date,omitempty"`
-	FlagType       string                 `json:"flag_type,omitempty"` // "temporary", "permanent", "experiment"
-	Metadata       map[string]interface{} `json:"metadata,omitempty"`
-	Rollout        *RolloutConfig         `json:"rollout,omitempty"`
+	Enabled bool `json:"enabled"`
+	// Description    string                 `json:"description,omitempty"`
+	// Value          interface{}            `json:"value,omitempty"`
+	// ExpirationDate string                 `json:"expiration_date,omitempty"`
+	// IsTemporary    bool                   `json:"is_temporary,omitempty"`
+	// CreatedDate    string                 `json:"created_date,omitempty"`
+	// ReviewDate     string                 `json:"review_date,omitempty"`
+	// FlagType       string                 `json:"flag_type,omitempty"` // "temporary", "permanent", "experiment"
+	// Metadata       map[string]interface{} `json:"metadata,omitempty"`
+	// Rollout        *RolloutConfig         `json:"rollout,omitempty"`
 }
 
-// ロールアウト設定構造体
-type RolloutConfig struct {
-	Percentage int      `json:"percentage,omitempty"`
-	UserGroups []string `json:"user_groups,omitempty"`
-	Regions    []string `json:"regions,omitempty"`
-}
+// // ロールアウト設定構造体
+// type RolloutConfig struct {
+// 	Percentage int      `json:"percentage,omitempty"`
+// 	UserGroups []string `json:"user_groups,omitempty"`
+// 	Regions    []string `json:"regions,omitempty"`
+// }
 
 // AppConfig設定構造体
 type FeatureFlags map[string]FeatureFlagDetails
@@ -137,67 +135,19 @@ func getFeatureFlags(ctx context.Context) (FeatureFlags, error) {
 func handler(ctx context.Context) (Response, error) {
 	log.Printf("feature-flags Lambda関数が開始されました")
 
-	// 環境変数が設定されていない場合のフォールバック
-	if applicationID == "" || environmentID == "" || configurationProfileID == "" {
-		log.Printf("AppConfig環境変数が未設定のため、デフォルト値を使用します")
-		defaultFlag := FeatureFlagDetails{
-			Enabled:     true,
-			Description: "デフォルト設定",
-			Value:       "default",
-			IsTemporary: false,
-			FlagType:    "permanent",
-		}
-		return Response{
-			Flag1Enabled: true, // デフォルトでtrue
-			Flag1Details: &defaultFlag,
-			AllFlags:     map[string]FeatureFlagDetails{"flag1": defaultFlag},
-			Message:      "AppConfig未設定のため、デフォルト値を使用",
-		}, nil
-	}
-
 	// AppConfigからfeature flagsを取得
 	flags, err := getFeatureFlags(ctx)
 	if err != nil {
 		log.Printf("AppConfigからの設定取得に失敗: %v", err)
-		// エラー時はデフォルト値を返す
-		errorFlag := FeatureFlagDetails{
-			Enabled:     false,
-			Description: "エラー時のフォールバック設定",
-			Value:       "error_fallback",
-			IsTemporary: false,
-			FlagType:    "permanent",
-		}
 		return Response{
-			Flag1Enabled: false,
-			Flag1Details: &errorFlag,
-			AllFlags:     map[string]FeatureFlagDetails{"flag1": errorFlag},
-			Message:      fmt.Sprintf("AppConfig取得エラー: %v", err),
+			AllFlags: nil,
+			Message:  fmt.Sprintf("AppConfig取得エラー: %v", err),
 		}, nil
 	}
 
-	// flag1の状態を確認 - 直接マップからアクセス
-	flag1Enabled := false
-	var flag1Details *FeatureFlagDetails
-	if flag1Value, exists := flags["flag1"]; exists {
-		flag1Enabled = flag1Value.Enabled
-		flag1Details = &flag1Value
-		log.Printf("flag1の詳細: enabled=%v, description=%s, value=%v, is_temporary=%v, flag_type=%s",
-			flag1Value.Enabled, flag1Value.Description, flag1Value.Value, flag1Value.IsTemporary, flag1Value.FlagType)
-
-		// 短期フラグの場合は追加の警告ログ
-		if flag1Value.IsTemporary || flag1Value.FlagType == "temporary" {
-			log.Printf("警告: flag1は短期フラグです。review_date=%s, expiration_date=%s",
-				flag1Value.ReviewDate, flag1Value.ExpirationDate)
-		}
-	}
-
-	log.Printf("flag1の状態: %v", flag1Enabled)
-
 	return Response{
-		Flag1Enabled: flag1Enabled,
-		Flag1Details: flag1Details,
-		AllFlags:     flags,
-		Message:      "AppConfigからflag1を正常に取得しました",
+		AllFlags: flags,
+		Message:  "AppConfigからflag1を正常に取得しました",
 	}, nil
 }
 
