@@ -4,8 +4,8 @@
 
 - **言語**: Go 1.24
 - **コンテナ**: Docker
-- **アーキテクチャ**: サーバーレス (AWS Lambda)
-- **インフラ**: AWS (DynamoDB, S3, SES, SQS, SNS)
+- **アーキテクチャ**: サーバーレス
+- **インフラ**: AWS (Lambda, S3, API Gateway, DynamoDB, SES, SQS, SNS, X-Ray, AppConfig)
   - https://github.com/k-kazuya0926/my-modern-application-sample-infra
 - **CI/CD**: GitHub Actions
 - **セキュリティスキャン**: Trivy
@@ -17,25 +17,9 @@
 **機能**: "Hello world" メッセージを返すシンプルなLambda関数\
 **技術スタック**:
 - Go
-- aws-lambda-go
+- Lambda
 
-### 2. register-user
-**概要**: ユーザー登録とメール送信機能\
-**機能**:
-- API Gateway経由でユーザー情報（名前・メールアドレス）を受信
-- DynamoDBにユーザー情報を保存（連番ID自動生成）
-- S3署名付きURLを生成
-- SES経由で登録完了メールを送信
-
-**技術スタック**:
-- Go
-- AWS Lambda
-- API Gateway v2
-- DynamoDB（ユーザーテーブル・シーケンステーブル）
-- S3（署名付きURL生成）
-- SES（メール送信）
-
-### 3. read-and-write-s3
+### 2. read-and-write-s3
 **概要**: S3ファイル処理とZIP暗号化\
 **機能**:
 - S3イベントトリガーでファイルアップロードを検知
@@ -45,9 +29,25 @@
 
 **技術スタック**:
 - Go
-- AWS Lambda
+- Lambda
 - S3（イベントトリガー・ファイル操作）
 - alexmullins/zip（パスワード付きZIP作成）
+
+### 3. register-user
+**概要**: ユーザー登録とメール送信機能\
+**機能**:
+- API Gateway経由でユーザー情報（名前・メールアドレス）を受信
+- DynamoDBにユーザー情報を保存（連番ID自動生成）
+- S3署名付きURLを生成
+- SES経由で登録完了メールを送信
+
+**技術スタック**:
+- Go
+- Lambda
+- API Gateway(HTTP API)
+- DynamoDB（ユーザーテーブル・シーケンステーブル）
+- S3（署名付きURL生成）
+- SES（メール送信）
 
 ### 4. send-emails-via-sqs（メール配信システム）
 
@@ -61,10 +61,11 @@
 
 **技術スタック**:
 - Go
-- AWS Lambda
+- Lambda
 - S3（イベントトリガー）
 - DynamoDB（メールアドレステーブル）
 - SQS（メッセージキュー）
+- X-Ray
 
 #### 4.2 read-message-and-send-mail
 **概要**: SQSメッセージ処理とメール送信\
@@ -76,11 +77,12 @@
 
 **技術スタック**:
 - Go
-- AWS Lambda
+- Lambda
 - SQS（メッセージ受信）
 - S3（メールテンプレート取得）
 - DynamoDB（送信状態管理）
 - SES（メール送信）
+- X-Ray
 
 #### 4.3 receive-bounce-mail
 **概要**: バウンスメール処理\
@@ -91,9 +93,10 @@
 
 **技術スタック**:
 - Go
-- AWS Lambda
+- Lambda
 - SNS（バウンス通知受信）
 - DynamoDB（エラーステータス更新）
+- X-Ray
 
 ### 5. feature-flags
 **概要**: AWS AppConfigを使用した機能フラグ管理システム\
@@ -105,7 +108,7 @@
 
 **技術スタック**:
 - Go
-- AWS Lambda
+- Lambda
 - AWS AppConfig（機能フラグ設定管理）
 
 ### 6. tmp
@@ -113,7 +116,7 @@
 
 **技術スタック**:
 - Go
-- AWS Lambda
+- Lambda
 - 他
 
 ## 参考書籍
