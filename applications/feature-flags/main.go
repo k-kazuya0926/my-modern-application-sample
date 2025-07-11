@@ -30,24 +30,9 @@ type Response struct {
 
 // 機能フラグの詳細情報を含む構造体
 type FeatureFlagDetails struct {
-	Enabled bool `json:"enabled"`
-	// Description    string                 `json:"description,omitempty"`
-	// Value          interface{}            `json:"value,omitempty"`
-	// ExpirationDate string                 `json:"expiration_date,omitempty"`
-	// IsTemporary    bool                   `json:"is_temporary,omitempty"`
-	// CreatedDate    string                 `json:"created_date,omitempty"`
-	// ReviewDate     string                 `json:"review_date,omitempty"`
-	// FlagType       string                 `json:"flag_type,omitempty"` // "temporary", "permanent", "experiment"
-	// Metadata       map[string]interface{} `json:"metadata,omitempty"`
-	// Rollout        *RolloutConfig         `json:"rollout,omitempty"`
+	Enabled    bool   `json:"enabled"`
+	Attribute1 string `json:"attribute1,omitempty"`
 }
-
-// // ロールアウト設定構造体
-// type RolloutConfig struct {
-// 	Percentage int      `json:"percentage,omitempty"`
-// 	UserGroups []string `json:"user_groups,omitempty"`
-// 	Regions    []string `json:"regions,omitempty"`
-// }
 
 // AppConfig設定構造体
 type FeatureFlags map[string]FeatureFlagDetails
@@ -85,22 +70,22 @@ func init() {
 
 // AppConfigからfeature flagsを取得
 func getFeatureFlags(ctx context.Context) (FeatureFlags, error) {
-	// // セッショントークンがない場合は新しいセッションを開始
-	// if configSession.Token == "" {
-	startSessionInput := &appconfigdata.StartConfigurationSessionInput{
-		ApplicationIdentifier:          &applicationID,
-		EnvironmentIdentifier:          &environmentID,
-		ConfigurationProfileIdentifier: &configurationProfileID,
-	}
+	// セッショントークンがない場合は新しいセッションを開始
+	if configSession.Token == "" {
+		startSessionInput := &appconfigdata.StartConfigurationSessionInput{
+			ApplicationIdentifier:          &applicationID,
+			EnvironmentIdentifier:          &environmentID,
+			ConfigurationProfileIdentifier: &configurationProfileID,
+		}
 
-	sessionResp, err := appConfigDataClient.StartConfigurationSession(ctx, startSessionInput)
-	if err != nil {
-		return nil, fmt.Errorf("AppConfigセッション開始に失敗: %w", err)
-	}
+		sessionResp, err := appConfigDataClient.StartConfigurationSession(ctx, startSessionInput)
+		if err != nil {
+			return nil, fmt.Errorf("AppConfigセッション開始に失敗: %w", err)
+		}
 
-	configSession.Token = *sessionResp.InitialConfigurationToken
-	log.Printf("新しいAppConfigセッションを開始しました")
-	// }
+		configSession.Token = *sessionResp.InitialConfigurationToken
+		log.Printf("新しいAppConfigセッションを開始しました")
+	}
 
 	// 最新の設定データを取得
 	getConfigInput := &appconfigdata.GetLatestConfigurationInput{
