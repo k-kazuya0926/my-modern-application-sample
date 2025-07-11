@@ -75,8 +75,6 @@ func init() {
 
 // AppConfigからfeature flagsを取得
 func getFeatureFlags(ctx context.Context) (*FeatureFlags, error) {
-	// // セッショントークンがない場合は新しいセッションを開始
-	// if configSession.Token == "" {
 	startSessionInput := &appconfigdata.StartConfigurationSessionInput{
 		ApplicationIdentifier:          &applicationID,
 		EnvironmentIdentifier:          &environmentID,
@@ -90,7 +88,6 @@ func getFeatureFlags(ctx context.Context) (*FeatureFlags, error) {
 
 	configSession.Token = *sessionResp.InitialConfigurationToken
 	log.Printf("新しいAppConfigセッションを開始しました")
-	// }
 
 	// 最新の設定データを取得
 	getConfigInput := &appconfigdata.GetLatestConfigurationInput{
