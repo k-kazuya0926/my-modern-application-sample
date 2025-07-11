@@ -75,22 +75,22 @@ func init() {
 
 // AppConfigからfeature flagsを取得
 func getFeatureFlags(ctx context.Context) (*FeatureFlags, error) {
-	// セッショントークンがない場合は新しいセッションを開始
-	if configSession.Token == "" {
-		startSessionInput := &appconfigdata.StartConfigurationSessionInput{
-			ApplicationIdentifier:          &applicationID,
-			EnvironmentIdentifier:          &environmentID,
-			ConfigurationProfileIdentifier: &configurationProfileID,
-		}
-
-		sessionResp, err := appConfigDataClient.StartConfigurationSession(ctx, startSessionInput)
-		if err != nil {
-			return nil, fmt.Errorf("AppConfigセッション開始に失敗: %w", err)
-		}
-
-		configSession.Token = *sessionResp.InitialConfigurationToken
-		log.Printf("新しいAppConfigセッションを開始しました")
+	// // セッショントークンがない場合は新しいセッションを開始
+	// if configSession.Token == "" {
+	startSessionInput := &appconfigdata.StartConfigurationSessionInput{
+		ApplicationIdentifier:          &applicationID,
+		EnvironmentIdentifier:          &environmentID,
+		ConfigurationProfileIdentifier: &configurationProfileID,
 	}
+
+	sessionResp, err := appConfigDataClient.StartConfigurationSession(ctx, startSessionInput)
+	if err != nil {
+		return nil, fmt.Errorf("AppConfigセッション開始に失敗: %w", err)
+	}
+
+	configSession.Token = *sessionResp.InitialConfigurationToken
+	log.Printf("新しいAppConfigセッションを開始しました")
+	// }
 
 	// 最新の設定データを取得
 	getConfigInput := &appconfigdata.GetLatestConfigurationInput{
