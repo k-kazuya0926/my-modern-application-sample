@@ -39,7 +39,7 @@ jobs:
           ecr-repository-uri: ${{ env.ECR_REPOSITORY_URI }}
           function-name: tmp
       # デプロイまで行う場合は次のようにする
-      # - uses: ./.github/actions/deploy-lambda/
-      #   with:
-      #     function-name: ${{ github.event.repository.name }}-${{ matrix.env }}-tmp
-      #     image-uri: ${{ steps.build.outputs.image-uri }}
+      - uses: ./.github/actions/deploy-lambda/
+        with:
+          function-name: ${{ github.event.repository.name }}-${{ matrix.env }}-tmp
+          image-uri: ${{ steps.build.outputs.image-uri }}
