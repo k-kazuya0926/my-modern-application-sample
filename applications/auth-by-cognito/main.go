@@ -7,7 +7,7 @@ import (
 )
 
 func handler(ctx context.Context) (string, error) {
-	return "auth-by-cognito", nil
+	return "OK", nil
 }
 
 func main() {
