@@ -112,11 +112,10 @@
 - AWS AppConfig(機能フラグ設定管理)
 
 ### 6. auth-by-cognito
-**概要**: Amazon Cognitoを使用した認証システム\
+**概要**: Amazon CognitoによるIDトークンの検証\
 **機能**:
 - Cognitoユーザープールでの認証処理
-- JWTトークンの検証
-- 認証状態の管理
+- IDトークンの検証
 
 **技術スタック**:
 - Go
