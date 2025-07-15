@@ -1,0 +1,46 @@
+name: build-lambda-create-purchase-history
+on:
+  push:
+    branches: [main]
+    paths:
+      - applications/saga-orchestration/create-purchase-history/**
+      - .github/workflows/build-lambda-create-purchase-history.yml
+defaults: # パイプエラーを拾えるようにデフォルトシェルを設定
+  run:
+    shell: bash
+concurrency: # コミット追加時に古いワークフローの実行を自動キャンセル
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  build:
+    strategy:
+      matrix:
+        env: [prod] # 用意する環境に応じて変更
+    runs-on: ubuntu-latest
+    environment: ${{ matrix.env }}
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      id-token: write
+    env:
+      ROLE_ARN: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/${{ github.event.repository.name }}-${{ matrix.env }}-github-actions
+      SESSION_NAME: gh-oidc-${{ github.run_id }}-${{ github.run_attempt }}
+      ECR_REPOSITORY_URI: ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ vars.AWS_REGION }}.amazonaws.com/${{ github.event.repository.name }}-${{ matrix.env }}-create-purchase-history
+    steps:
+      - uses: actions/checkout@v4
+      - uses: aws-actions/configure-aws-credentials@v4 # 一時クレデンシャルの取得
+        with:
+          role-to-assume: ${{ env.ROLE_ARN }}
+          role-session-name: ${{ env.SESSION_NAME }}
+          aws-region: ${{ vars.AWS_REGION }}
+      - uses: ./.github/actions/build-lambda/
+        id: build
+        with:
+          ecr-repository-uri: ${{ env.ECR_REPOSITORY_URI }}
+          context: applications/saga-orchestration
+          function-name: create-purchase-history
+      # デプロイまで行う場合は次のようにする
+      # - uses: ./.github/actions/deploy-lambda/
+      #   with:
+      #     function-name: ${{ github.event.repository.name }}-${{ matrix.env }}-create-purchase-history
+      #     image-uri: ${{ steps.build.outputs.image-uri }}
