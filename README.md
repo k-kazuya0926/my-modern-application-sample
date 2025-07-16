@@ -5,7 +5,7 @@
 - **言語**: Go 1.24
 - **コンテナ**: Docker
 - **アーキテクチャ**: サーバーレス
-- **インフラ**: AWS (Lambda, S3, API Gateway, DynamoDB, SES, SQS, SNS, X-Ray, AppConfig, Cognito)
+- **インフラ**: AWS (API Gateway, AppConfig, Cognito, DynamoDB, Lambda, S3, SES, SNS, SQS, Step Functions, X-Ray)
   - https://github.com/k-kazuya0926/my-modern-application-sample-infra
 - **CI/CD**: GitHub Actions
 - **セキュリティスキャン**: Trivy
@@ -123,7 +123,27 @@
 - Amazon Cognito(ユーザープール・認証管理)
 - API Gateway(HTTP API)
 
-### 7. tmp
+### 7. saga-orchestration
+**概要**: Step Functionsを使用したSagaパターンによる分散トランザクション管理\
+**機能**:
+- 複数のサービス間での分散トランザクション制御
+- 決済処理、ポイント付与、購入履歴作成の一連の処理(Sagaが主目的であるため、実装はダミー)
+- 失敗時の補償処理(Compensating Transaction)による整合性保証
+
+**構成要素**:
+- **process-payment**: 決済処理Lambda関数
+- **cancel-payment**: 決済キャンセル(補償処理)Lambda関数
+- **create-purchase-history**: 購入履歴作成Lambda関数
+- **delete-purchase-history**: 購入履歴削除(補償処理)Lambda関数
+- **award-points**: ポイント付与Lambda関数
+
+**技術スタック**:
+- Go
+- Lambda
+- Step Functions(ワークフロー管理)
+- X-Ray
+
+### 8. tmp
 **概要**: 一時的な実験用Lambda関数
 
 **技術スタック**:
