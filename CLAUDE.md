@@ -1,121 +1,123 @@
 # CLAUDE.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+このファイルは、このリポジトリでコードを扱う際のClaude Code (claude.ai/code) への指針を提供します。
 
-## Development Commands
+**重要**: コードベースに変更を加える際は、このCLAUDE.mdファイルの内容も適宜更新してください。新しいアプリケーションの追加、アーキテクチャパターンの変更、開発プロセスの変更などがあった場合は、このガイドラインを最新の状態に保つことで、今後の開発作業の効率性と一貫性を確保できます。
 
-### Testing and Local Development
-- Test individual Go applications: `cd applications/<app-name> && go test ./...`
-- Run Go mod tidy: `cd applications/<app-name> && go mod tidy`
-- Build locally: `cd applications/<app-name> && CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o bootstrap main.go`
+## 開発コマンド
 
-### Docker Build Commands
-- Build Lambda container: `docker build -f applications/shared/lambda/Dockerfile --build-arg FUNCTION_NAME=<app-name> -t <image-name> applications/`
-- Test container locally: `docker run --rm -p 9000:8080 <image-name>`
+### テストとローカル開発
+- 個別のGoアプリケーションのテスト: `cd applications/<app-name> && go test ./...`
+- Go mod tidyの実行: `cd applications/<app-name> && go mod tidy`
+- ローカルビルド: `cd applications/<app-name> && CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o bootstrap main.go`
 
-### CI/CD Workflows
-- Static analysis: `docker run --rm -v "$(pwd):$(pwd)" -w "$(pwd)" rhysd/actionlint:latest`
-- Security scan: Trivy scanner runs automatically on PR/push to main
-- Lambda builds: Each application has its own build workflow triggering on file changes
+### Dockerビルドコマンド
+- Lambdaコンテナのビルド: `docker build -f applications/shared/lambda/Dockerfile --build-arg FUNCTION_NAME=<app-name> -t <image-name> applications/`
+- コンテナのローカルテスト: `docker run --rm -p 9000:8080 <image-name>`
 
-## Architecture Overview
+### CI/CDワークフロー
+- 静的解析: `docker run --rm -v "$(pwd):$(pwd)" -w "$(pwd)" rhysd/actionlint:latest`
+- セキュリティスキャン: TrivyスキャナーがmainブランチへのPR/pushで自動実行
+- Lambdaビルド: 各アプリケーションはファイル変更時にトリガーされる専用ビルドワークフロー
 
-### Core Structure
-This is a **serverless microservices architecture** built with Go 1.24 and AWS Lambda. Each application in the `applications/` directory is an independent Lambda function with its own purpose and dependencies.
+## アーキテクチャ概要
 
-### Key Patterns
+### コア構造
+これは**Go 1.24とAWS Lambdaで構築されたサーバーレスマイクロサービスアーキテクチャ**です。`applications/`ディレクトリ内の各アプリケーションは、独自の目的と依存関係を持つ独立したLambda関数です。
 
-**Lambda Function Structure:**
-- Each application follows the same pattern: `main.go`, `go.mod`, `go.sum`
-- All use `github.com/aws/aws-lambda-go/lambda` for Lambda runtime
-- AWS SDK v2 is used consistently across applications (`github.com/aws/aws-sdk-go-v2/`)
-- Global client initialization in `main()` function for connection reuse
-- Environment variables for configuration (ENV, bucket names, etc.)
+### 主要パターン
 
-**Docker Build Pattern:**
-- Shared Dockerfile at `applications/shared/lambda/Dockerfile`
-- Multi-stage build: golang:1.24-alpine for build, AWS Lambda base image for runtime
-- Static linking with security flags: `CGO_ENABLED=0`, `-ldflags='-w -s -extldflags "-static"'`
-- Uses `FUNCTION_NAME` build arg to specify which application to build
+**Lambda関数構造:**
+- 各アプリケーションは同じパターンに従います: `main.go`, `go.mod`, `go.sum`
+- すべてLambdaランタイムに`github.com/aws/aws-lambda-go/lambda`を使用
+- AWS SDK v2をアプリケーション全体で一貫して使用 (`github.com/aws/aws-sdk-go-v2/`)
+- 接続再利用のための`main()`関数でのグローバルクライアント初期化
+- 設定用の環境変数 (ENV、バケット名など)
 
-**CI/CD Pattern:**
-- Each Lambda function has dedicated GitHub Actions workflow
-- Path-based triggering (only builds when relevant files change)
-- ECR for container image storage
-- AWS OIDC for secure credential management
-- Composite actions for reusable build/deploy logic
+**Dockerビルドパターン:**
+- `applications/shared/lambda/Dockerfile`の共有Dockerfile
+- マルチステージビルド: ビルド用golang:1.24-alpine、ランタイム用AWS Lambdaベースイメージ
+- セキュリティフラグ付き静的リンク: `CGO_ENABLED=0`, `-ldflags='-w -s -extldflags "-static"'`
+- ビルドするアプリケーションを指定する`FUNCTION_NAME`ビルド引数を使用
 
-### Application Categories
+**CI/CDパターン:**
+- 各Lambda関数に専用のGitHub Actionsワークフロー
+- パスベーストリガー（関連ファイル変更時のみビルド）
+- コンテナイメージストレージ用ECR
+- セキュアな認証情報管理用AWS OIDC
+- 再利用可能なビルド/デプロイロジック用コンポジットアクション
 
-**Simple Functions:**
-- `hello-world`: Basic Lambda handler pattern
-- `tmp`: Experimental function
+### アプリケーションカテゴリ
 
-**AWS Service Integration:**
-- `read-and-write-s3`: S3 event processing, ZIP encryption
-- `register-user`: API Gateway + DynamoDB + S3 + SES integration
-- `feature-flags`: AWS AppConfig integration
-- `auth-by-cognito`: Cognito JWT token validation
+**シンプル関数:**
+- `hello-world`: 基本的なLambdaハンドラーパターン
+- `tmp`: 実験的関数
 
-**Message Processing:**
-- `send-emails-via-sqs/`: Complete email system with SQS queuing, SES sending, bounce handling
-- `fan-out/`: SNS/SQS fan-out pattern with multiple consumers
+**AWSサービス統合:**
+- `read-and-write-s3`: S3イベント処理、ZIP暗号化
+- `register-user`: API Gateway + DynamoDB + S3 + SES統合
+- `feature-flags`: AWS AppConfig統合
+- `auth-by-cognito`: Cognito JWTトークン検証
 
-**Orchestration:**
-- `saga-orchestration/`: Step Functions-based distributed transaction pattern with compensating actions
+**メッセージ処理:**
+- `send-emails-via-sqs/`: SQSキューイング、SES送信、バウンス処理を含む完全なメールシステム
+- `fan-out/`: 複数コンシューマーでのSNS/SQSファンアウトパターン
 
-### Key Implementation Patterns
+**オーケストレーション:**
+- `saga-orchestration/`: 補償アクション付きStep Functions基盤の分散トランザクションパターン
 
-**Error Handling:**
-- Panic recovery with logging in Lambda handlers
-- Graceful degradation (e.g., email sending failures don't break user registration)
-- Structured error responses for API Gateway
+### 主要実装パターン
 
-**AWS SDK Usage:**
-- V2 SDK with context-aware operations
-- Service-specific clients initialized globally
-- Proper attribute value handling for DynamoDB
+**エラーハンドリング:**
+- Lambdaハンドラーでのログ付きパニックリカバリ
+- グレースフルデグラデーション（例：メール送信失敗がユーザー登録を中断しない）
+- API Gateway用の構造化エラーレスポンス
 
-**Environment Configuration:**
-- Environment-specific resource naming: `my-modern-application-sample-{env}-{resource}`
-- Required environment variables validated at startup
+**AWS SDK使用法:**
+- コンテキスト対応操作付きV2 SDK
+- グローバルに初期化されたサービス固有クライアント
+- DynamoDB用の適切な属性値ハンドリング
 
-**Security:**
-- Static binary compilation to reduce attack surface
-- No hardcoded credentials
-- Presigned URLs for secure S3 access
+**環境設定:**
+- 環境固有リソース命名: `my-modern-application-sample-{env}-{resource}`
+- 起動時に検証される必須環境変数
 
-## Infrastructure Integration
+**セキュリティ:**
+- 攻撃面を減らす静的バイナリコンパイル
+- ハードコードされた認証情報なし
+- セキュアなS3アクセス用の署名付きURL
 
-This codebase is designed to work with infrastructure managed at: https://github.com/k-kazuya0926/my-modern-application-sample-infra
+## インフラストラクチャ統合
 
-AWS Services used:
-- **API Gateway**: HTTP APIs for web endpoints
-- **Lambda**: Serverless compute with container images
-- **DynamoDB**: NoSQL database with sequence tables for ID generation
-- **S3**: Object storage with event triggers and presigned URLs
-- **SES**: Email sending with bounce handling
-- **SQS/SNS**: Message queuing and pub/sub
-- **Step Functions**: Workflow orchestration for saga pattern
-- **AppConfig**: Feature flag management
-- **Cognito**: User authentication
-- **ECR**: Container image registry
-- **X-Ray**: Distributed tracing
+このコードベースは以下で管理されるインフラストラクチャと連携するよう設計されています: https://github.com/k-kazuya0926/my-modern-application-sample-infra
 
-## Development Notes
+使用するAWSサービス:
+- **API Gateway**: Webエンドポイント用HTTP API
+- **Lambda**: コンテナイメージ付きサーバーレスコンピューティング
+- **DynamoDB**: ID生成用シーケンステーブル付きNoSQLデータベース
+- **S3**: イベントトリガーと署名付きURL付きオブジェクトストレージ
+- **SES**: バウンス処理付きメール送信
+- **SQS/SNS**: メッセージキューイングとパブ/サブ
+- **Step Functions**: Sagaパターン用ワークフローオーケストレーション
+- **AppConfig**: フィーチャーフラグ管理
+- **Cognito**: ユーザー認証
+- **ECR**: コンテナイメージレジストリ
+- **X-Ray**: 分散トレーシング
 
-### Adding New Lambda Functions
-1. Create new directory under `applications/`
-2. Add `go.mod`, `go.sum`, and `main.go` following existing patterns
-3. Create corresponding GitHub Actions workflow following naming convention
-4. Use shared Dockerfile with appropriate `FUNCTION_NAME` build arg
+## 開発ノート
 
-### Common Dependencies
-- AWS Lambda Go runtime: `github.com/aws/aws-lambda-go`
+### 新しいLambda関数の追加
+1. `applications/`下に新しいディレクトリを作成
+2. 既存パターンに従って`go.mod`, `go.sum`, `main.go`を追加
+3. 命名規則に従った対応するGitHub Actionsワークフローを作成
+4. 適切な`FUNCTION_NAME`ビルド引数で共有Dockerfileを使用
+
+### 共通依存関係
+- AWS Lambda Goランタイム: `github.com/aws/aws-lambda-go`
 - AWS SDK v2: `github.com/aws/aws-sdk-go-v2/`
-- Specific services imported as needed (dynamodb, s3, ses, etc.)
+- 必要に応じてインポートされる特定サービス（dynamodb, s3, sesなど）
 
-### Environment Variables
-All Lambda functions expect:
-- `ENV`: Environment name (prod, dev, etc.)
-- Service-specific variables (bucket names, table names, etc.)
+### 環境変数
+すべてのLambda関数に必要:
+- `ENV`: 環境名（prod, devなど）
+- サービス固有変数（バケット名、テーブル名など）
