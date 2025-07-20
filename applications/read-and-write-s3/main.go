@@ -7,6 +7,7 @@ import (
 	"context"
 	"fmt"
 	"io"
+	"log"
 	"os"
 	"path/filepath"
 
@@ -46,7 +47,11 @@ func handler(ctx context.Context, s3Event events.S3Event) error {
 		if err != nil {
 			return fmt.Errorf("ダウンロードエラー: %v", err)
 		}
-		defer result.Body.Close()
+		defer func() {
+			if err := result.Body.Close(); err != nil {
+				log.Printf("failed to close response body: %v", err)
+			}
+		}()
 
 		// ファイル内容を読み取り
 		fileContent, err := io.ReadAll(result.Body)

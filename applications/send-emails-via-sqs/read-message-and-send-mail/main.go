@@ -100,7 +100,11 @@ func getMailDataFromS3(ctx context.Context, bucketName, fileName string) (string
 	if err != nil {
 		return "", err
 	}
-	defer result.Body.Close()
+	defer func() {
+		if err := result.Body.Close(); err != nil {
+			log.Printf("failed to close response body: %v", err)
+		}
+	}()
 
 	// レスポンスボディを安全に読み取り
 	data, err := io.ReadAll(result.Body)
