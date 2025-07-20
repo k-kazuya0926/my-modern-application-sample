@@ -32,6 +32,11 @@ jobs:
         uses: actions/setup-go@v5
         with:
           go-version: '1.24'
+      - name: Run lint
+        uses: golangci/golangci-lint-action@v6
+        with:
+          version: latest
+          working-directory: applications/tmp
       - name: Run tests
         run: |
           cd applications/tmp

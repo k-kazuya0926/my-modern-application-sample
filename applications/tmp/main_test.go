@@ -13,7 +13,7 @@ func TestHandler(t *testing.T) {
 		t.Errorf("handler() returned an error: %v", err)
 	}
 
-	if result != "tmp2" {
+	if result != "tmp" {
 		t.Errorf("handler() returned %q, expected %q", result, "tmp")
 	}
 }
