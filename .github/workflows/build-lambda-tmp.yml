@@ -28,6 +28,14 @@ jobs:
       ECR_REPOSITORY_URI: ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ vars.AWS_REGION }}.amazonaws.com/${{ github.event.repository.name }}-${{ matrix.env }}-tmp
     steps:
       - uses: actions/checkout@v4
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.24'
+      - name: Run tests
+        run: |
+          cd applications/tmp
+          go test -v ./...
       - uses: aws-actions/configure-aws-credentials@v4 # 一時クレデンシャルの取得
         with:
           role-to-assume: ${{ env.ROLE_ARN }}
