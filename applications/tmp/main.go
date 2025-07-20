@@ -7,7 +7,6 @@ import (
 )
 
 func handler(ctx context.Context) (string, error) {
-	var v string
 	return "tmp", nil
 }
 
