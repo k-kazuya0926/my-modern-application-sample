@@ -28,6 +28,19 @@ jobs:
       ECR_REPOSITORY_URI: ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ vars.AWS_REGION }}.amazonaws.com/${{ github.event.repository.name }}-${{ matrix.env }}-cancel-payment
     steps:
       - uses: actions/checkout@v4
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: "1.24"
+      - name: Run lint
+        uses: golangci/golangci-lint-action@v8
+        with:
+          version: v2.2.2
+          working-directory: applications/saga-orchestration/cancel-payment
+      - name: Run tests
+        run: |
+          cd applications/saga-orchestration/cancel-payment
+          go test -v ./...
       - uses: aws-actions/configure-aws-credentials@v4 # 一時クレデンシャルの取得
         with:
           role-to-assume: ${{ env.ROLE_ARN }}
