@@ -27,7 +27,7 @@ func init() {
 	databasePort = os.Getenv("DATABASE_PORT")
 
 	if databaseHost == "" || databaseName == "" || databasePort == "" {
-		panic("DATABASE_HOST, DATABASE_NAME, and DATABASE_PORT environment variables must be set")
+		panic("DATABASE_HOST, DATABASE_NAME, and DATABASE_PORT environment variables must be set.")
 	}
 
 	cfg, err := config.LoadDefaultConfig(ctx)
