@@ -1,4 +1,4 @@
-module github.com/k-kazuya0926/my-modern-application-sample/applications/access-vpc
+module github.com/k-kazuya0926/my-modern-application-sample/applications/access-rds
 
 go 1.24
 

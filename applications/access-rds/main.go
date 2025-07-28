@@ -66,7 +66,7 @@ func handler(ctx context.Context) (string, error) {
 		return "", fmt.Errorf("failed to execute SELECT 1; with IAM auth: %v", err)
 	}
 
-	return fmt.Sprintf("access-vpc: Successfully executed SELECT 1; with IAM auth, result: %d", result), nil
+	return fmt.Sprintf("access-rds: Successfully executed SELECT 1; with IAM auth, result: %d", result), nil
 }
 
 func main() {

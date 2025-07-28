@@ -1,10 +1,10 @@
-name: build-lambda-access-vpc
+name: build-lambda-access-rds
 on:
   push:
     branches: [main]
     paths:
-      - applications/access-vpc/**
-      - .github/workflows/build-lambda-access-vpc.yml
+      - applications/access-rds/**
+      - .github/workflows/build-lambda-access-rds.yml
 defaults: # パイプエラーを拾えるようにデフォルトシェルを設定
   run:
     shell: bash
@@ -25,7 +25,7 @@ jobs:
     env:
       ROLE_ARN: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/${{ github.event.repository.name }}-${{ matrix.env }}-github-actions
       SESSION_NAME: gh-oidc-${{ github.run_id }}-${{ github.run_attempt }}
-      ECR_REPOSITORY_URI: ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ vars.AWS_REGION }}.amazonaws.com/${{ github.event.repository.name }}-${{ matrix.env }}-access-vpc
+      ECR_REPOSITORY_URI: ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ vars.AWS_REGION }}.amazonaws.com/${{ github.event.repository.name }}-${{ matrix.env }}-access-rds
     steps:
       - uses: actions/checkout@v4
       - name: Set up Go
@@ -36,10 +36,10 @@ jobs:
         uses: golangci/golangci-lint-action@v8
         with:
           version: v2.2.2
-          working-directory: applications/access-vpc
+          working-directory: applications/access-rds
       - name: Run tests
         run: |
-          cd applications/access-vpc
+          cd applications/access-rds
           go test -v ./...
       - uses: aws-actions/configure-aws-credentials@v4 # 一時クレデンシャルの取得
         with:
@@ -50,9 +50,9 @@ jobs:
         id: build
         with:
           ecr-repository-uri: ${{ env.ECR_REPOSITORY_URI }}
-          function-name: access-vpc
+          function-name: access-rds
       # デプロイまで行う場合は次のようにする
-      - uses: ./.github/actions/deploy-lambda/
-        with:
-          function-name: ${{ github.event.repository.name }}-${{ matrix.env }}-access-vpc
-          image-uri: ${{ steps.build.outputs.image-uri }}
+      # - uses: ./.github/actions/deploy-lambda/
+      #   with:
+      #     function-name: ${{ github.event.repository.name }}-${{ matrix.env }}-access-rds
+      #     image-uri: ${{ steps.build.outputs.image-uri }}
