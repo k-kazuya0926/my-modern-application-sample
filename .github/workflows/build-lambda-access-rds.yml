@@ -52,7 +52,7 @@ jobs:
           ecr-repository-uri: ${{ env.ECR_REPOSITORY_URI }}
           function-name: access-rds
       # デプロイまで行う場合は次のようにする
-      # - uses: ./.github/actions/deploy-lambda/
-      #   with:
-      #     function-name: ${{ github.event.repository.name }}-${{ matrix.env }}-access-rds
-      #     image-uri: ${{ steps.build.outputs.image-uri }}
+      - uses: ./.github/actions/deploy-lambda/
+        with:
+          function-name: ${{ github.event.repository.name }}-${{ matrix.env }}-access-rds
+          image-uri: ${{ steps.build.outputs.image-uri }}
