@@ -165,6 +165,7 @@
 **機能**:
 - AWS IAM認証を使用したRDS PostgreSQLへの接続
 - IAM認証トークンの自動生成
+- golang-migrateを使用したマイグレーション
 - データベース接続テスト(SELECT 1;実行)
 
 **技術スタック**:
