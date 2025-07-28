@@ -3,14 +3,21 @@ package main
 import (
 	"context"
 	"database/sql"
+	"embed"
 	"fmt"
 	"os"
 
 	"github.com/aws/aws-lambda-go/lambda"
 	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/feature/rds/auth"
+	"github.com/golang-migrate/migrate/v4"
+	"github.com/golang-migrate/migrate/v4/database/postgres"
+	"github.com/golang-migrate/migrate/v4/source/iofs"
 	_ "github.com/lib/pq"
 )
+
+//go:embed migrations/*.sql
+var migrationFiles embed.FS
 
 var (
 	db           *sql.DB
@@ -56,6 +63,39 @@ func init() {
 	if err := db.PingContext(ctx); err != nil {
 		panic(fmt.Sprintf("failed to ping database: %v", err))
 	}
+
+	// Run migrations
+	if err := runMigrations(ctx); err != nil {
+		panic(fmt.Sprintf("failed to run migrations: %v", err))
+	}
+}
+
+func runMigrations(ctx context.Context) error {
+	// Create migration source from embedded files
+	sourceDriver, err := iofs.New(migrationFiles, "migrations")
+	if err != nil {
+		return fmt.Errorf("failed to create migration source: %v", err)
+	}
+
+	// Create database driver
+	driver, err := postgres.WithInstance(db, &postgres.Config{})
+	if err != nil {
+		return fmt.Errorf("failed to create database driver: %v", err)
+	}
+
+	// Create migrate instance
+	m, err := migrate.NewWithInstance("iofs", sourceDriver, "postgres", driver)
+	if err != nil {
+		return fmt.Errorf("failed to create migrate instance: %v", err)
+	}
+
+	// Run migrations
+	if err := m.Up(); err != nil && err != migrate.ErrNoChange {
+		return fmt.Errorf("failed to run migrations: %v", err)
+	}
+
+	fmt.Println("Migrations completed successfully")
+	return nil
 }
 
 func handler(ctx context.Context) (string, error) {
