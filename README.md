@@ -5,7 +5,7 @@
 - **言語**: Go 1.24
 - **コンテナ**: Docker
 - **アーキテクチャ**: サーバーレス
-- **インフラ**: AWS (API Gateway, AppConfig, Cognito, DynamoDB, Lambda, S3, SES, SNS, SQS, Step Functions, X-Ray)
+- **インフラ**: AWS (API Gateway, AppConfig, Cognito, DynamoDB, Lambda, RDS, S3, SES, SNS, SQS, Step Functions, X-Ray)
   - https://github.com/k-kazuya0926/my-modern-application-sample-infra
 - **CI/CD**: GitHub Actions
 - **セキュリティスキャン**: Trivy
