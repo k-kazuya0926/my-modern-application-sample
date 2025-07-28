@@ -1,0 +1,2 @@
+# Database connection string format (not actual credentials)
+dsn := fmt.Sprintf("host=%s port=%s user=postgres password=%s dbname=%s sslmode=require",
