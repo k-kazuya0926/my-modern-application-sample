@@ -160,7 +160,22 @@
 - SNS
 - SQS
 
-### 9. tmp
+### 9. access-rds
+**概要**: RDS PostgreSQLへのIAM認証接続サンプル\
+**機能**:
+- AWS IAM認証を使用したRDS PostgreSQLへの接続
+- IAM認証トークンの自動生成
+- データベース接続テスト(SELECT 1;実行)
+
+**技術スタック**:
+- Go
+- Lambda
+- RDS(Aurora PostgreSQL Serverless v2)
+- IAM認証
+- AWS SDK v2(rds/auth)
+- lib/pq(PostgreSQLドライバー)
+
+### 10. tmp
 **概要**: 一時的な実験用Lambda関数
 
 **技術スタック**:
@@ -174,3 +189,4 @@
 - AWS Lambda実践ガイド 第2版
 - AWSで実現するモダンアプリケーション入門 〜サーバーレス、コンテナ、マイクロサービスで何ができるのか
 - AWSクラウドネイティブデザインパターン
+- 基礎から学ぶ サーバーレス開発
