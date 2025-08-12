@@ -27,7 +27,7 @@ jobs:
       SESSION_NAME: gh-oidc-${{ github.run_id }}-${{ github.run_attempt }}
       ECR_REPOSITORY_URI: ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ vars.AWS_REGION }}.amazonaws.com/${{ github.event.repository.name }}-${{ matrix.env }}-read-message-and-send-mail
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Set up Go
         uses: actions/setup-go@v5
         with:
