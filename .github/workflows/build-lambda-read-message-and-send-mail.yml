@@ -41,7 +41,7 @@ jobs:
         run: |
           cd applications/send-emails-via-sqs/read-message-and-send-mail
           go test -v ./...
-      - uses: aws-actions/configure-aws-credentials@v4 # 一時クレデンシャルの取得
+      - uses: aws-actions/configure-aws-credentials@v5 # 一時クレデンシャルの取得
         with:
           role-to-assume: ${{ env.ROLE_ARN }}
           role-session-name: ${{ env.SESSION_NAME }}
