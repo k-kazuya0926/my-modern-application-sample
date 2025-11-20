@@ -1,6 +1,6 @@
 module github.com/k-kazuya0926/my-modern-application-sample/applications/read-and-write-s3
 
-go 1.24
+go 1.24.0
 
 require (
 	github.com/alexmullins/zip v0.0.0-20180717182244-4affb64b04d0
@@ -26,5 +26,5 @@ require (
 	github.com/aws/aws-sdk-go-v2/service/ssooidc v1.21.5 // indirect
 	github.com/aws/aws-sdk-go-v2/service/sts v1.26.5 // indirect
 	github.com/aws/smithy-go v1.19.0 // indirect
-	golang.org/x/crypto v0.39.0 // indirect
+	golang.org/x/crypto v0.45.0 // indirect
 )
