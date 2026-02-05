@@ -42,7 +42,7 @@ jobs:
       id-token: write
     steps:
       - uses: actions/checkout@v6
-      - uses: aws-actions/configure-aws-credentials@v5 # 一時クレデンシャルの取得
+      - uses: aws-actions/configure-aws-credentials@v6 # 一時クレデンシャルの取得
         with:
           role-to-assume: ${{ env.ROLE_ARN }}
           role-session-name: ${{ env.SESSION_NAME }}
