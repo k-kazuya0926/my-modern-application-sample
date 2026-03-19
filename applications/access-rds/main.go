@@ -11,9 +11,9 @@ import (
 	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/feature/rds/auth"
 	"github.com/golang-migrate/migrate/v4"
-	"github.com/golang-migrate/migrate/v4/database/postgres"
+	pgx5 "github.com/golang-migrate/migrate/v4/database/pgx/v5"
 	"github.com/golang-migrate/migrate/v4/source/iofs"
-	_ "github.com/lib/pq" // TODO: kobayashi pgxを使う
+	_ "github.com/jackc/pgx/v5/stdlib"
 )
 
 //go:embed migrations/*.sql
@@ -54,7 +54,7 @@ func init() {
 		databaseHost, databasePort, authToken, databaseName)
 
 	// Connect to database
-	db, err = sql.Open("postgres", dsn)
+	db, err = sql.Open("pgx", dsn)
 	if err != nil {
 		panic(fmt.Sprintf("failed to open database connection: %v", err))
 	}
@@ -78,13 +78,13 @@ func runMigrations(ctx context.Context) error {
 	}
 
 	// Create database driver
-	driver, err := postgres.WithInstance(db, &postgres.Config{})
+	driver, err := pgx5.WithInstance(db, &pgx5.Config{})
 	if err != nil {
 		return fmt.Errorf("failed to create database driver: %w", err)
 	}
 
 	// Create migrate instance
-	m, err := migrate.NewWithInstance("iofs", sourceDriver, "postgres", driver)
+	m, err := migrate.NewWithInstance("iofs", sourceDriver, "pgx5", driver)
 	if err != nil {
 		return fmt.Errorf("failed to create migrate instance: %w", err)
 	}
