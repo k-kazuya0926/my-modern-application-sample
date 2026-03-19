@@ -13,7 +13,7 @@ import (
 	"github.com/golang-migrate/migrate/v4"
 	"github.com/golang-migrate/migrate/v4/database/postgres"
 	"github.com/golang-migrate/migrate/v4/source/iofs"
-	_ "github.com/lib/pq"
+	_ "github.com/lib/pq" // TODO: kobayashi pgxを使う
 )
 
 //go:embed migrations/*.sql
@@ -74,24 +74,24 @@ func runMigrations(ctx context.Context) error {
 	// Create migration source from embedded files
 	sourceDriver, err := iofs.New(migrationFiles, "migrations")
 	if err != nil {
-		return fmt.Errorf("failed to create migration source: %v", err)
+		return fmt.Errorf("failed to create migration source: %w", err)
 	}
 
 	// Create database driver
 	driver, err := postgres.WithInstance(db, &postgres.Config{})
 	if err != nil {
-		return fmt.Errorf("failed to create database driver: %v", err)
+		return fmt.Errorf("failed to create database driver: %w", err)
 	}
 
 	// Create migrate instance
 	m, err := migrate.NewWithInstance("iofs", sourceDriver, "postgres", driver)
 	if err != nil {
-		return fmt.Errorf("failed to create migrate instance: %v", err)
+		return fmt.Errorf("failed to create migrate instance: %w", err)
 	}
 
 	// Run migrations
 	if err := m.Up(); err != nil && err != migrate.ErrNoChange {
-		return fmt.Errorf("failed to run migrations: %v", err)
+		return fmt.Errorf("failed to run migrations: %w", err)
 	}
 
 	fmt.Println("Migrations completed successfully")
@@ -103,7 +103,7 @@ func handler(ctx context.Context) (string, error) {
 	var result int
 	err := db.QueryRowContext(ctx, "SELECT 1;").Scan(&result)
 	if err != nil {
-		return "", fmt.Errorf("failed to execute SELECT 1; with IAM auth: %v", err)
+		return "", fmt.Errorf("failed to execute SELECT 1; with IAM auth: %w", err)
 	}
 
 	return fmt.Sprintf("access-rds: Successfully executed SELECT 1; with IAM auth, result: %d", result), nil
