@@ -31,7 +31,7 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@v6
         with:
-          go-version: "1.24"
+          go-version: "1.25"
           cache-dependency-path: applications/access-rds/go.sum
       - name: Run lint
         uses: golangci/golangci-lint-action@v9
