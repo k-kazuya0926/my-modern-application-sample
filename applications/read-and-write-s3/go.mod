@@ -1,6 +1,6 @@
 module github.com/k-kazuya0926/my-modern-application-sample/applications/read-and-write-s3
 
-go 1.24.0
+go 1.26
 
 require (
 	github.com/alexmullins/zip v0.0.0-20180717182244-4affb64b04d0

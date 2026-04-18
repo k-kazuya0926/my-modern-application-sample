@@ -2,7 +2,7 @@
 
 ## 技術スタック
 
-- **言語**: Go 1.24
+- **言語**: Go 1.26
 - **コンテナ**: Docker
 - **アーキテクチャ**: サーバーレス
 - **インフラ**: AWS (API Gateway, AppConfig, Cognito, DynamoDB, Lambda, RDS, S3, SES, SNS, SQS, Step Functions, X-Ray)

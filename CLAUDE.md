@@ -23,7 +23,7 @@
 ## アーキテクチャ概要
 
 ### コア構造
-これは**Go 1.24とAWS Lambdaで構築されたサーバーレスマイクロサービスアーキテクチャ**です。`applications/`ディレクトリ内の各アプリケーションは、独自の目的と依存関係を持つ独立したLambda関数です。
+これは**Go 1.26とAWS Lambdaで構築されたサーバーレスマイクロサービスアーキテクチャ**です。`applications/`ディレクトリ内の各アプリケーションは、独自の目的と依存関係を持つ独立したLambda関数です。
 
 ### 主要パターン
 
@@ -36,7 +36,7 @@
 
 **Dockerビルドパターン:**
 - `applications/shared/lambda/Dockerfile`の共有Dockerfile
-- マルチステージビルド: ビルド用golang:1.24-alpine、ランタイム用AWS Lambdaベースイメージ
+- マルチステージビルド: ビルド用golang:1.26-alpine、ランタイム用AWS Lambdaベースイメージ
 - セキュリティフラグ付き静的リンク: `CGO_ENABLED=0`, `-ldflags='-w -s -extldflags "-static"'`
 - ビルドするアプリケーションを指定する`FUNCTION_NAME`ビルド引数を使用
 
