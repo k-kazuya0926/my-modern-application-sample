@@ -7,6 +7,7 @@ import (
 )
 
 func handler(ctx context.Context) (string, error) {
+	println("tmp2")
 	return "tmp", nil
 }
 
